@@ -1,0 +1,2429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Projeto Origem</title>
+
+<meta name="description" content="Explorando a origem da vida, evolução e vida artificial.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+
+--bg:#04060d;
+--bg2:#091120;
+
+--panel:rgba(12,20,35,.78);
+
+--panelBorder:rgba(255,255,255,.08);
+
+--text:#eef3ff;
+
+--muted:#9cb4d8;
+
+--primary:#59d4ff;
+
+--secondary:#45ffbf;
+
+--glow:rgba(89,212,255,.35);
+
+--radius:18px;
+
+--shadow:0 10px 35px rgba(0,0,0,.45);
+
+--max:1280px;
+
+}
+
+*{
+
+margin:0;
+
+padding:0;
+
+box-sizing:border-box;
+
+}
+
+html{
+
+scroll-behavior:smooth;
+
+}
+
+body{
+
+font-family:"Inter",sans-serif;
+
+background:linear-gradient(180deg,#02040a,#08111d);
+
+color:var(--text);
+
+overflow-x:hidden;
+
+}
+
+canvas{
+
+position:fixed;
+
+left:0;
+
+top:0;
+
+width:100%;
+
+height:100%;
+
+z-index:-2;
+
+}
+
+#gradient{
+
+position:fixed;
+
+inset:0;
+
+background:
+radial-gradient(circle at 20% 20%,rgba(0,180,255,.18),transparent 30%),
+radial-gradient(circle at 80% 15%,rgba(0,255,170,.12),transparent 28%),
+radial-gradient(circle at 50% 80%,rgba(100,100,255,.12),transparent 35%);
+
+z-index:-1;
+
+pointer-events:none;
+
+filter:blur(30px);
+
+}
+
+a{
+
+color:inherit;
+
+text-decoration:none;
+
+}
+
+img{
+
+max-width:100%;
+
+display:block;
+
+}
+
+.container{
+
+width:min(var(--max),92%);
+
+margin:auto;
+
+}
+
+section{
+
+padding:110px 0;
+
+position:relative;
+
+}
+
+/* ===========================
+NAVBAR
+=========================== */
+
+header{
+
+position:fixed;
+
+top:0;
+
+left:0;
+
+width:100%;
+
+z-index:1000;
+
+transition:.35s;
+
+}
+
+header.scrolled{
+
+background:rgba(5,10,20,.82);
+
+backdrop-filter:blur(12px);
+
+border-bottom:1px solid rgba(255,255,255,.05);
+
+}
+
+.nav{
+
+height:78px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+}
+
+.logo{
+
+display:flex;
+
+align-items:center;
+
+gap:14px;
+
+font-size:1.15rem;
+
+font-weight:700;
+
+letter-spacing:.04em;
+
+}
+
+.logoSphere{
+
+width:16px;
+
+height:16px;
+
+border-radius:50%;
+
+background:linear-gradient(135deg,var(--primary),var(--secondary));
+
+box-shadow:0 0 18px var(--glow);
+
+}
+
+.menu{
+
+display:flex;
+
+gap:34px;
+
+}
+
+.menu a{
+
+font-size:.96rem;
+
+color:var(--muted);
+
+transition:.25s;
+
+position:relative;
+
+}
+
+.menu a:hover{
+
+color:white;
+
+}
+
+.menu a::after{
+
+content:"";
+
+position:absolute;
+
+left:0;
+
+bottom:-8px;
+
+width:0;
+
+height:2px;
+
+background:var(--primary);
+
+transition:.25s;
+
+}
+
+.menu a:hover::after{
+
+width:100%;
+
+}
+
+.mobileButton{
+
+display:none;
+
+background:none;
+
+border:none;
+
+cursor:pointer;
+
+}
+
+.mobileButton span{
+
+display:block;
+
+width:28px;
+
+height:3px;
+
+background:white;
+
+margin:5px 0;
+
+border-radius:2px;
+
+}
+
+/* ===========================
+HERO
+=========================== */
+
+.hero{
+
+min-height:100vh;
+
+display:flex;
+
+align-items:center;
+
+position:relative;
+
+overflow:hidden;
+
+}
+
+.heroGrid{
+
+display:grid;
+
+grid-template-columns:1.1fr .9fr;
+
+gap:60px;
+
+align-items:center;
+
+}
+
+.heroText h1{
+
+font-size:clamp(2.8rem,7vw,5.3rem);
+
+line-height:1.03;
+
+margin-bottom:26px;
+
+font-weight:800;
+
+}
+
+.heroText p{
+
+font-size:1.12rem;
+
+line-height:1.8;
+
+color:var(--muted);
+
+max-width:650px;
+
+margin-bottom:38px;
+
+}
+
+.buttons{
+
+display:flex;
+
+gap:18px;
+
+flex-wrap:wrap;
+
+}
+
+.btn{
+
+padding:15px 30px;
+
+border-radius:999px;
+
+font-weight:700;
+
+transition:.35s;
+
+cursor:pointer;
+
+border:none;
+
+}
+
+.primary{
+
+background:linear-gradient(135deg,var(--primary),#00b4ff);
+
+color:#00131b;
+
+box-shadow:0 0 35px rgba(0,180,255,.35);
+
+}
+
+.primary:hover{
+
+transform:translateY(-3px);
+
+box-shadow:0 0 45px rgba(0,180,255,.55);
+
+}
+
+.secondary{
+
+background:transparent;
+
+border:1px solid rgba(255,255,255,.15);
+
+color:white;
+
+}
+
+.secondary:hover{
+
+background:rgba(255,255,255,.06);
+
+}
+
+.heroVisual{
+
+position:relative;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+}
+
+.orbit{
+
+width:430px;
+
+height:430px;
+
+border-radius:50%;
+
+border:1px solid rgba(255,255,255,.08);
+
+position:relative;
+
+animation:spinSlow 60s linear infinite;
+
+}
+
+.orbit::before{
+
+content:"";
+
+position:absolute;
+
+width:14px;
+
+height:14px;
+
+background:var(--secondary);
+
+border-radius:50%;
+
+left:50%;
+
+top:-7px;
+
+transform:translateX(-50%);
+
+box-shadow:0 0 20px var(--secondary);
+
+}
+
+.core{
+
+position:absolute;
+
+left:50%;
+
+top:50%;
+
+transform:translate(-50%,-50%);
+
+width:150px;
+
+height:150px;
+
+border-radius:50%;
+
+background:
+radial-gradient(circle,var(--primary),#072845 70%);
+
+box-shadow:
+0 0 40px rgba(0,200,255,.45),
+0 0 90px rgba(0,180,255,.2);
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:1.2rem;
+
+font-weight:700;
+
+text-align:center;
+
+padding:18px;
+
+}
+
+@keyframes spinSlow{
+
+from{
+
+transform:rotate(0deg);
+
+}
+
+to{
+
+transform:rotate(360deg);
+
+}
+
+}
+
+   
+/* ===========================
+TIMELINE
+=========================== */
+
+.timelineSection{
+
+overflow:hidden;
+
+}
+
+.sectionTitle{
+
+text-align:center;
+
+max-width:750px;
+
+margin:0 auto 70px;
+
+}
+
+.sectionTitle h2{
+
+font-size:clamp(2rem,5vw,3.2rem);
+
+margin-bottom:20px;
+
+}
+
+.sectionTitle p{
+
+color:var(--muted);
+
+line-height:1.8;
+
+font-size:1.05rem;
+
+}
+
+
+.timeline{
+
+display:flex;
+
+gap:25px;
+
+overflow-x:auto;
+
+padding:30px 10px 50px;
+
+scroll-snap-type:x mandatory;
+
+}
+
+.timeline::-webkit-scrollbar{
+
+height:8px;
+
+}
+
+.timeline::-webkit-scrollbar-thumb{
+
+background:rgba(255,255,255,.15);
+
+border-radius:20px;
+
+}
+
+
+.timeCard{
+
+min-width:280px;
+
+background:var(--panel);
+
+border:1px solid var(--panelBorder);
+
+border-radius:var(--radius);
+
+padding:30px;
+
+scroll-snap-align:center;
+
+transition:.35s;
+
+position:relative;
+
+overflow:hidden;
+
+}
+
+
+.timeCard::before{
+
+content:"";
+
+position:absolute;
+
+width:120px;
+
+height:120px;
+
+border-radius:50%;
+
+background:var(--glow);
+
+filter:blur(40px);
+
+top:-40px;
+
+right:-40px;
+
+}
+
+
+.timeCard:hover{
+
+transform:translateY(-10px);
+
+border-color:rgba(89,212,255,.4);
+
+}
+
+
+.timeNumber{
+
+font-size:.9rem;
+
+color:var(--primary);
+
+font-weight:700;
+
+margin-bottom:15px;
+
+}
+
+
+.timeCard h3{
+
+font-size:1.35rem;
+
+margin-bottom:12px;
+
+}
+
+
+.timeCard p{
+
+color:var(--muted);
+
+line-height:1.7;
+
+font-size:.95rem;
+
+}
+
+
+/* ===========================
+CARDS PRINCIPAIS
+=========================== */
+
+
+.cards{
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:25px;
+
+}
+
+
+.card{
+
+background:var(--panel);
+
+border:1px solid var(--panelBorder);
+
+padding:35px;
+
+border-radius:var(--radius);
+
+transition:.35s;
+
+position:relative;
+
+overflow:hidden;
+
+}
+
+
+.card:hover{
+
+transform:translateY(-8px);
+
+border-color:rgba(89,212,255,.35);
+
+}
+
+
+.icon{
+
+width:55px;
+
+height:55px;
+
+border-radius:15px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:1.6rem;
+
+margin-bottom:25px;
+
+background:
+linear-gradient(135deg,
+rgba(89,212,255,.25),
+rgba(69,255,191,.15));
+
+}
+
+
+.card h3{
+
+font-size:1.35rem;
+
+margin-bottom:15px;
+
+}
+
+
+.card p{
+
+color:var(--muted);
+
+line-height:1.75;
+
+}
+
+
+/* ===========================
+LABORATÓRIO
+=========================== */
+
+
+.lab{
+
+background:
+
+linear-gradient(
+180deg,
+transparent,
+rgba(89,212,255,.04),
+transparent
+);
+
+}
+
+
+.labBox{
+
+background:rgba(10,18,32,.7);
+
+border:
+
+1px solid rgba(255,255,255,.08);
+
+border-radius:25px;
+
+padding:50px;
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+gap:50px;
+
+align-items:center;
+
+}
+
+
+.labVisual{
+
+height:320px;
+
+border-radius:20px;
+
+background:
+
+radial-gradient(circle at center,
+rgba(89,212,255,.3),
+transparent 35%),
+
+rgba(0,0,0,.3);
+
+position:relative;
+
+overflow:hidden;
+
+}
+
+
+.atom{
+
+position:absolute;
+
+left:50%;
+
+top:50%;
+
+width:70px;
+
+height:70px;
+
+border-radius:50%;
+
+background:
+
+radial-gradient(circle,
+var(--secondary),
+#063);
+
+transform:translate(-50%,-50%);
+
+box-shadow:0 0 35px var(--secondary);
+
+}
+
+
+.ring{
+
+position:absolute;
+
+left:50%;
+
+top:50%;
+
+width:200px;
+
+height:200px;
+
+border-radius:50%;
+
+border:1px solid rgba(89,212,255,.4);
+
+transform:translate(-50%,-50%);
+
+animation:spinSlow 15s linear infinite;
+
+}
+
+
+.labText h2{
+
+font-size:2.4rem;
+
+margin-bottom:20px;
+
+}
+
+
+.labText p{
+
+color:var(--muted);
+
+line-height:1.8;
+
+margin-bottom:30px;
+
+}
+
+
+
+/* ===========================
+PROJECTS
+=========================== */
+
+
+.projects{
+
+display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+gap:25px;
+
+}
+
+
+.project{
+
+background:var(--panel);
+
+border-radius:var(--radius);
+
+padding:35px;
+
+border:1px solid var(--panelBorder);
+
+}
+
+
+.project h3{
+
+font-size:1.5rem;
+
+margin-bottom:12px;
+
+}
+
+
+.status{
+
+display:inline-block;
+
+padding:7px 15px;
+
+border-radius:20px;
+
+font-size:.8rem;
+
+margin-top:20px;
+
+background:rgba(69,255,191,.12);
+
+color:var(--secondary);
+
+}
+
+
+
+/* ===========================
+FOOTER
+=========================== */
+
+
+footer{
+
+padding:60px 0;
+
+border-top:1px solid rgba(255,255,255,.06);
+
+text-align:center;
+
+color:var(--muted);
+
+}
+
+
+/* ===========================
+ANIMAÇÕES DE ENTRADA
+=========================== */
+
+
+.reveal{
+
+opacity:0;
+
+transform:translateY(40px);
+
+transition:.8s ease;
+
+}
+
+
+.reveal.active{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+
+
+/* ===========================
+RESPONSIVIDADE
+=========================== */
+
+
+@media(max-width:900px){
+
+
+.heroGrid{
+
+grid-template-columns:1fr;
+
+text-align:center;
+
+}
+
+
+.heroText p{
+
+margin-left:auto;
+
+margin-right:auto;
+
+}
+
+
+.buttons{
+
+justify-content:center;
+
+}
+
+
+.heroVisual{
+
+margin-top:40px;
+
+}
+
+
+.orbit{
+
+width:300px;
+
+height:300px;
+
+}
+
+
+.core{
+
+width:110px;
+
+height:110px;
+
+font-size:.9rem;
+
+}
+
+
+
+.cards{
+
+grid-template-columns:1fr;
+
+}
+
+
+.labBox{
+
+grid-template-columns:1fr;
+
+padding:30px;
+
+}
+
+
+.projects{
+
+grid-template-columns:1fr;
+
+}
+
+
+
+.menu{
+
+position:fixed;
+
+top:78px;
+
+right:-100%;
+
+width:260px;
+
+height:calc(100vh - 78px);
+
+background:#050b16;
+
+flex-direction:column;
+
+padding:40px;
+
+transition:.35s;
+
+}
+
+
+.menu.active{
+
+right:0;
+
+}
+
+
+.mobileButton{
+
+display:block;
+
+}
+
+
+}
+
+
+
+@media(max-width:500px){
+
+
+section{
+
+padding:80px 0;
+
+}
+
+
+.heroText h1{
+
+font-size:2.5rem;
+
+}
+
+
+.btn{
+
+width:100%;
+
+}
+
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<canvas id="space"></canvas>
+
+<div id="gradient"></div>
+
+
+<header>
+
+<div class="container nav">
+
+
+<a class="logo" href="#">
+
+<span class="logoSphere"></span>
+
+Projeto Origem
+
+</a>
+
+
+<nav class="menu" id="menu">
+
+<a href="#origem">Origem</a>
+
+<a href="#evolucao">Evolução</a>
+
+<a href="#alife">ALife</a>
+
+<a href="#laboratorio">Laboratório</a>
+
+<a href="#projetos">Projetos</a>
+
+</nav>
+
+
+<button class="mobileButton" id="mobileButton">
+
+<span></span>
+
+<span></span>
+
+<span></span>
+
+</button>
+
+
+</div>
+
+</header>
+
+
+
+<main>
+
+<section class="hero">
+
+<div class="container heroGrid">
+
+
+<div class="heroText reveal">
+
+
+<h1>
+
+Como a matéria aprendeu a viver?
+
+</h1>
+
+
+<p>
+
+Uma jornada pela origem da vida, evolução biológica e criação de sistemas artificiais capazes de simular os princípios fundamentais da vida.
+
+</p>
+
+
+<div class="buttons">
+
+<a href="#origem" class="btn primary">
+
+Explorar
+
+</a>
+
+
+<a href="#projetos" class="btn secondary">
+
+Meus projetos
+
+</a>
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="heroVisual reveal">
+
+
+<div class="orbit">
+
+<div class="core">
+
+Origem<br>
+
+da Vida
+
+</div>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+</section>
+
+
+
+<section id="origem" class="timelineSection">
+
+<div class="container">
+
+
+<div class="sectionTitle reveal">
+
+<h2>
+
+A grande jornada da vida
+
+</h2>
+
+<p>
+
+Da matéria inorgânica aos primeiros sistemas vivos, acompanhe os principais eventos que moldaram a história da vida.
+
+</p>
+
+</div>
+
+
+
+<div class="timeline reveal">
+
+
+<div class="timeCard">
+
+<div class="timeNumber">
+
+13,8 bilhões de anos
+
+</div>
+
+<h3>
+
+Universo primitivo
+
+</h3>
+
+<p>
+
+Nascimento do universo, formação das primeiras partículas e início da organização da matéria.
+
+</p>
+
+</div>
+
+
+
+<div class="timeCard">
+
+<div class="timeNumber">
+
+Bilhões de anos
+
+</div>
+
+<h3>
+
+Átomos e moléculas
+
+</h3>
+
+<p>
+
+Elementos químicos surgem e começam a formar estruturas cada vez mais complexas.
+
+</p>
+
+</div>
+
+
+
+<div class="timeCard">
+
+<div class="timeNumber">
+
+Terra primitiva
+
+</div>
+
+<h3>
+
+Química da vida
+
+</h3>
+
+<p>
+
+Moléculas orgânicas e sistemas auto-organizados criam as condições para a vida.
+
+</p>
+
+</div>
+
+
+
+<div class="timeCard">
+
+<div class="timeNumber">
+
+Primeiros bilhões de anos
+
+</div>
+
+<h3>
+
+Primeiras células
+
+</h3>
+
+<p>
+
+Surgem sistemas capazes de manter organização, reprodução e evolução.
+
+</p>
+
+</div>
+
+
+
+<div class="timeCard">
+
+<div class="timeNumber">
+
+Atualidade
+
+</div>
+
+<h3>
+
+Vida artificial
+
+</h3>
+
+<p>
+
+Tentamos compreender a vida criando sistemas artificiais inspirados na natureza.
+
+</p>
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+</section>
+
+
+
+
+
+<section id="evolucao">
+
+<div class="container">
+
+
+<div class="sectionTitle reveal">
+
+<h2>
+
+Conhecimento organizado
+
+</h2>
+
+<p>
+
+Explore os diferentes campos necessários para compreender como a vida surgiu e evoluiu.
+
+</p>
+
+</div>
+
+
+
+<div class="cards">
+
+
+
+<div class="card reveal">
+
+<div class="icon">
+
+⚛️
+
+</div>
+
+<h3>
+
+Física
+
+</h3>
+
+<p>
+
+As leis fundamentais que governam energia, partículas, matéria e organização do universo.
+
+</p>
+
+</div>
+
+
+
+<div class="card reveal">
+
+<div class="icon">
+
+🧪
+
+</div>
+
+<h3>
+
+Química
+
+</h3>
+
+<p>
+
+Como átomos e moléculas desenvolveram propriedades capazes de formar sistemas complexos.
+
+</p>
+
+</div>
+
+
+
+<div class="card reveal">
+
+<div class="icon">
+
+🧬
+
+</div>
+
+<h3>
+
+Biologia evolutiva
+
+</h3>
+
+<p>
+
+A história dos organismos, adaptação, seleção natural e aumento da complexidade.
+
+</p>
+
+</div>
+
+
+<div class="card reveal">
+
+<div class="icon">
+
+🤖
+
+</div>
+
+<h3>
+
+ALife
+
+</h3>
+
+<p>
+
+O estudo da vida artificial e das regras mínimas necessárias para criar sistemas vivos.
+
+</p>
+
+</div>
+
+
+
+<div class="card reveal">
+
+<div class="icon">
+
+🌎
+
+</div>
+
+<h3>
+
+Origem da vida
+
+</h3>
+
+<p>
+
+Hipóteses, experimentos e perguntas abertas sobre o surgimento dos primeiros seres vivos.
+
+</p>
+
+</div>
+
+
+
+<div class="card reveal">
+
+<div class="icon">
+
+💻
+
+</div>
+
+<h3>
+
+Simulações
+
+</h3>
+
+<p>
+
+Modelos computacionais para estudar evolução, emergência e comportamento coletivo.
+
+</p>
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+</section>
+
+
+
+
+
+<section id="laboratorio" class="lab">
+
+
+<div class="container">
+
+
+<div class="labBox reveal">
+
+
+<div class="labVisual">
+
+
+<div class="ring"></div>
+
+<div class="atom"></div>
+
+
+</div>
+
+
+
+
+<div class="labText">
+
+
+<h2>
+
+Laboratório de Vida Artificial
+
+</h2>
+
+
+<p>
+
+No futuro, este espaço poderá abrigar simulações interativas de organismos artificiais, evolução, ecossistemas e experimentos computacionais.
+
+</p>
+
+
+<a class="btn primary">
+
+Entrar no laboratório
+
+</a>
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+<section id="projetos">
+
+
+<div class="container">
+
+
+<div class="sectionTitle reveal">
+
+
+<h2>
+
+Projetos em desenvolvimento
+
+</h2>
+
+
+<p>
+
+Experimentos e sistemas criados para explorar os princípios da vida através da computação.
+
+</p>
+
+
+</div>
+
+
+
+<div class="projects">
+
+
+
+<div class="project reveal">
+
+
+<h3>
+
+ALife Engine
+
+</h3>
+
+
+<p>
+
+Um ambiente experimental para criar e observar sistemas artificiais evoluindo.
+
+</p>
+
+
+<span class="status">
+
+Em desenvolvimento
+
+</span>
+
+
+</div>
+
+
+
+<div class="project reveal">
+
+
+<h3>
+
+Simulações evolutivas
+
+</h3>
+
+
+<p>
+
+Modelos computacionais para estudar emergência, adaptação e inteligência coletiva.
+
+</p>
+
+
+<span class="status">
+
+Planejamento
+
+</span>
+
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+</main>
+
+
+<footer>
+
+<div class="container">
+
+Projeto Origem © 2026
+
+<br>
+
+Explorando a fronteira entre matéria, vida e inteligência.
+
+</div>
+
+</footer>
+
+
+<script>
+
+const canvas = document.getElementById("space");
+const ctx = canvas.getContext("2d");
+
+let w = window.innerWidth;
+let h = window.innerHeight;
+
+canvas.width = w;
+canvas.height = h;
+
+window.addEventListener("resize", resizeCanvas);
+
+function resizeCanvas(){
+
+    w = window.innerWidth;
+    h = window.innerHeight;
+
+    canvas.width = w;
+    canvas.height = h;
+
+    createStars();
+    createParticles();
+    createNebulas();
+
+}
+
+const stars = [];
+const particles = [];
+const nebulas = [];
+
+const STAR_COUNT = 260;
+const PARTICLE_COUNT = 70;
+const NEBULA_COUNT = 6;
+
+function random(min,max){
+
+    return Math.random()*(max-min)+min;
+
+}
+
+class Star{
+
+    constructor(){
+
+        this.reset();
+
+    }
+
+    reset(){
+
+        this.x = random(0,w);
+        this.y = random(0,h);
+
+        this.size = random(.3,2.2);
+
+        this.alpha = random(.2,1);
+
+        this.speed = random(.02,.15);
+
+        this.twinkle = random(.002,.015);
+
+    }
+
+    update(){
+
+        this.y += this.speed;
+
+        this.alpha += (Math.random()-.5)*this.twinkle;
+
+        if(this.alpha<.15)this.alpha=.15;
+        if(this.alpha>1)this.alpha=1;
+
+        if(this.y>h){
+
+            this.y=0;
+            this.x=random(0,w);
+
+        }
+
+    }
+
+    draw(){
+
+        ctx.beginPath();
+
+        ctx.fillStyle=`rgba(255,255,255,${this.alpha})`;
+
+        ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+
+        ctx.fill();
+
+    }
+
+}
+
+class Particle{
+
+    constructor(){
+
+        this.reset();
+
+    }
+
+    reset(){
+
+        this.x=random(0,w);
+
+        this.y=random(0,h);
+
+        this.vx=random(-.2,.2);
+
+        this.vy=random(-.2,.2);
+
+        this.radius=random(1.5,4);
+
+        this.color=Math.random()>0.5?
+        "89,212,255":
+        "69,255,191";
+
+    }
+
+    update(){
+
+        this.x+=this.vx;
+        this.y+=this.vy;
+
+        if(this.x<0)this.x=w;
+        if(this.x>w)this.x=0;
+
+        if(this.y<0)this.y=h;
+        if(this.y>h)this.y=0;
+
+    }
+
+    draw(){
+
+        const g=ctx.createRadialGradient(
+            this.x,
+            this.y,
+            0,
+            this.x,
+            this.y,
+            this.radius*5
+        );
+
+        g.addColorStop(
+            0,
+            `rgba(${this.color},0.9)`
+        );
+
+        g.addColorStop(
+            1,
+            `rgba(${this.color},0)`
+        );
+
+        ctx.fillStyle=g;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.radius*5,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+    }
+
+}
+
+class Nebula{
+
+    constructor(){
+
+        this.reset();
+
+    }
+
+    reset(){
+
+        this.x=random(0,w);
+
+        this.y=random(0,h);
+
+        this.radius=random(180,320);
+
+        this.dx=random(-.05,.05);
+
+        this.dy=random(-.05,.05);
+
+        this.color=Math.random()>.5?
+        "0,180,255":
+        "0,255,180";
+
+    }
+
+    update(){
+
+        this.x+=this.dx;
+        this.y+=this.dy;
+
+        if(this.x<-this.radius)this.x=w+this.radius;
+        if(this.x>w+this.radius)this.x=-this.radius;
+
+        if(this.y<-this.radius)this.y=h+this.radius;
+        if(this.y>h+this.radius)this.y=-this.radius;
+
+    }
+
+    draw(){
+
+        const g=ctx.createRadialGradient(
+
+            this.x,
+            this.y,
+            0,
+
+            this.x,
+            this.y,
+            this.radius
+
+        );
+
+        g.addColorStop(
+            0,
+            `rgba(${this.color},0.08)`
+        );
+
+        g.addColorStop(
+            .6,
+            `rgba(${this.color},0.03)`
+        );
+
+        g.addColorStop(
+            1,
+            "rgba(0,0,0,0)"
+        );
+
+        ctx.fillStyle=g;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.radius,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+    }
+
+}
+
+function createStars(){
+
+    stars.length=0;
+
+    for(let i=0;i<STAR_COUNT;i++){
+
+        stars.push(new Star());
+
+    }
+
+}
+
+function createParticles(){
+
+    particles.length=0;
+
+    for(let i=0;i<PARTICLE_COUNT;i++){
+
+        particles.push(new Particle());
+
+    }
+
+}
+
+function createNebulas(){
+
+    nebulas.length=0;
+
+    for(let i=0;i<NEBULA_COUNT;i++){
+
+        nebulas.push(new Nebula());
+
+    }
+
+}
+
+createStars();
+
+createParticles();
+
+createNebulas();
+
+
+function drawConnections(){
+
+    const maxDistance = 140;
+
+    for(let i=0;i<particles.length;i++){
+
+        const a = particles[i];
+
+        for(let j=i+1;j<particles.length;j++){
+
+            const b = particles[j];
+
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+
+            const dist = Math.sqrt(dx*dx + dy*dy);
+
+            if(dist < maxDistance){
+
+                const alpha = (1 - dist/maxDistance) * 0.15;
+
+                ctx.beginPath();
+
+                ctx.moveTo(a.x,a.y);
+
+                ctx.lineTo(b.x,b.y);
+
+                ctx.strokeStyle = `rgba(89,212,255,${alpha})`;
+
+                ctx.lineWidth = 1;
+
+                ctx.stroke();
+
+            }
+
+        }
+
+    }
+
+}
+
+function drawBackground(){
+
+    ctx.clearRect(0,0,w,h);
+
+    for(const nebula of nebulas){
+
+        nebula.update();
+
+        nebula.draw();
+
+    }
+
+    for(const star of stars){
+
+        star.update();
+
+        star.draw();
+
+    }
+
+    drawConnections();
+
+    for(const particle of particles){
+
+        particle.update();
+
+        particle.draw();
+
+    }
+
+}
+
+let mouse = {
+
+    x: w/2,
+
+    y: h/2
+
+};
+
+window.addEventListener("mousemove",e=>{
+
+    mouse.x = e.clientX;
+
+    mouse.y = e.clientY;
+
+});
+
+window.addEventListener("touchmove",e=>{
+
+    if(e.touches.length){
+
+        mouse.x = e.touches[0].clientX;
+
+        mouse.y = e.touches[0].clientY;
+
+    }
+
+},{passive:true});
+
+function particleAttraction(){
+
+    for(const p of particles){
+
+        const dx = mouse.x - p.x;
+
+        const dy = mouse.y - p.y;
+
+        const dist = Math.sqrt(dx*dx + dy*dy);
+
+        if(dist < 180){
+
+            p.vx += dx * 0.00003;
+
+            p.vy += dy * 0.00003;
+
+        }
+
+        p.vx *= 0.995;
+
+        p.vy *= 0.995;
+
+    }
+
+}
+
+function animateSpace(){
+
+    drawBackground();
+
+    particleAttraction();
+
+    requestAnimationFrame(animateSpace);
+
+}
+
+animateSpace();
+
+  /* ===========================
+MENU MOBILE
+=========================== */
+
+const mobileButton = document.getElementById("mobileButton");
+const menu = document.getElementById("menu");
+
+mobileButton.addEventListener("click",()=>{
+
+    menu.classList.toggle("active");
+
+});
+
+document.querySelectorAll(".menu a").forEach(link=>{
+
+    link.addEventListener("click",()=>{
+
+        menu.classList.remove("active");
+
+    });
+
+});
+
+
+/* ===========================
+HEADER
+=========================== */
+
+const header = document.querySelector("header");
+
+window.addEventListener("scroll",()=>{
+
+    if(window.scrollY>40){
+
+        header.classList.add("scrolled");
+
+    }else{
+
+        header.classList.remove("scrolled");
+
+    }
+
+});
+
+
+/* ===========================
+ANIMAÇÕES DE ENTRADA
+=========================== */
+
+const reveals = document.querySelectorAll(".reveal");
+
+const observer = new IntersectionObserver(entries=>{
+
+    entries.forEach(entry=>{
+
+        if(entry.isIntersecting){
+
+            entry.target.classList.add("active");
+
+        }
+
+    });
+
+},{
+    threshold:0.15
+});
+
+reveals.forEach(el=>observer.observe(el));
+
+
+/* ===========================
+SCROLL SUAVE
+=========================== */
+
+document.querySelectorAll('a[href^="#"]').forEach(anchor=>{
+
+    anchor.addEventListener("click",function(e){
+
+        e.preventDefault();
+
+        const destino=document.querySelector(
+            this.getAttribute("href")
+        );
+
+        if(destino){
+
+            destino.scrollIntoView({
+
+                behavior:"smooth",
+
+                block:"start"
+
+            });
+
+        }
+
+    });
+
+});
+
+
+/* ===========================
+EFEITO PARALLAX
+=========================== */
+
+const gradient=document.getElementById("gradient");
+
+window.addEventListener("mousemove",e=>{
+
+    const x=e.clientX/window.innerWidth;
+
+    const y=e.clientY/window.innerHeight;
+
+    gradient.style.transform=
+    `translate(${x*20-10}px,${y*20-10}px)`;
+
+});
+
+
+/* ===========================
+EFEITO DOS BOTÕES
+=========================== */
+
+document.querySelectorAll(".btn").forEach(btn=>{
+
+    btn.addEventListener("mouseenter",()=>{
+
+        btn.style.transform="translateY(-4px) scale(1.03)";
+
+    });
+
+    btn.addEventListener("mouseleave",()=>{
+
+        btn.style.transform="translateY(0) scale(1)";
+
+    });
+
+});
+
+
+/* ===========================
+MOVIMENTO DA ÓRBITA
+=========================== */
+
+const orbit=document.querySelector(".orbit");
+
+window.addEventListener("mousemove",e=>{
+
+    const rx=(e.clientY/window.innerHeight-.5)*8;
+
+    const ry=(e.clientX/window.innerWidth-.5)*-8;
+
+    orbit.style.transform=
+
+    `rotateX(${rx}deg)
+     rotateY(${ry}deg)`;
+
+});
+
+
+/* ===========================
+ANIMAÇÃO DOS CARDS
+=========================== */
+
+document.querySelectorAll(".card,.project,.timeCard").forEach(card=>{
+
+    card.addEventListener("mouseenter",()=>{
+
+        card.style.boxShadow=
+        "0 20px 45px rgba(0,180,255,.18)";
+
+    });
+
+    card.addEventListener("mouseleave",()=>{
+
+        card.style.boxShadow="";
+
+    });
+
+});
+
+
+/* ===========================
+INICIALIZAÇÃO
+=========================== */
+
+console.log("Projeto Origem iniciado com sucesso.");
+
+</script>
+</body>
+</html>
