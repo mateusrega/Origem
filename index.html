@@ -2114,4 +2114,316 @@ function drawConnections(){
 
             const dist = Math.sqrt(dx*dx + dy*dy);
 
-  
+              if(dist < maxDistance){
+
+                const alpha = (1 - dist/maxDistance) * 0.15;
+
+                ctx.beginPath();
+
+                ctx.moveTo(a.x,a.y);
+
+                ctx.lineTo(b.x,b.y);
+
+                ctx.strokeStyle = `rgba(89,212,255,${alpha})`;
+
+                ctx.lineWidth = 1;
+
+                ctx.stroke();
+
+            }
+
+        }
+
+    }
+
+}
+
+function drawBackground(){
+
+    ctx.clearRect(0,0,w,h);
+
+    for(const nebula of nebulas){
+
+        nebula.update();
+
+        nebula.draw();
+
+    }
+
+    for(const star of stars){
+
+        star.update();
+
+        star.draw();
+
+    }
+
+    drawConnections();
+
+    for(const particle of particles){
+
+        particle.update();
+
+        particle.draw();
+
+    }
+
+}
+
+let mouse = {
+
+    x: w/2,
+
+    y: h/2
+
+};
+
+window.addEventListener("mousemove",e=>{
+
+    mouse.x = e.clientX;
+
+    mouse.y = e.clientY;
+
+});
+
+window.addEventListener("touchmove",e=>{
+
+    if(e.touches.length){
+
+        mouse.x = e.touches[0].clientX;
+
+        mouse.y = e.touches[0].clientY;
+
+    }
+
+},{passive:true});
+
+function particleAttraction(){
+
+    for(const p of particles){
+
+        const dx = mouse.x - p.x;
+
+        const dy = mouse.y - p.y;
+
+        const dist = Math.sqrt(dx*dx + dy*dy);
+
+        if(dist < 180){
+
+            p.vx += dx * 0.00003;
+
+            p.vy += dy * 0.00003;
+
+        }
+
+        p.vx *= 0.995;
+
+        p.vy *= 0.995;
+
+    }
+
+}
+
+function animateSpace(){
+
+    drawBackground();
+
+    particleAttraction();
+
+    requestAnimationFrame(animateSpace);
+
+}
+
+animateSpace();
+
+  /* ===========================
+MENU MOBILE
+=========================== */
+
+const mobileButton = document.getElementById("mobileButton");
+const menu = document.getElementById("menu");
+
+mobileButton.addEventListener("click",()=>{
+
+    menu.classList.toggle("active");
+
+});
+
+document.querySelectorAll(".menu a").forEach(link=>{
+
+    link.addEventListener("click",()=>{
+
+        menu.classList.remove("active");
+
+    });
+
+});
+
+
+/* ===========================
+HEADER
+=========================== */
+
+const header = document.querySelector("header");
+
+window.addEventListener("scroll",()=>{
+
+    if(window.scrollY>40){
+
+        header.classList.add("scrolled");
+
+    }else{
+
+        header.classList.remove("scrolled");
+
+    }
+
+});
+
+
+/* ===========================
+ANIMAÇÕES DE ENTRADA
+=========================== */
+
+const reveals = document.querySelectorAll(".reveal");
+
+const observer = new IntersectionObserver(entries=>{
+
+    entries.forEach(entry=>{
+
+        if(entry.isIntersecting){
+
+            entry.target.classList.add("active");
+
+        }
+
+    });
+
+},{
+    threshold:0.15
+});
+
+reveals.forEach(el=>observer.observe(el));
+
+
+/* ===========================
+SCROLL SUAVE
+=========================== */
+
+document.querySelectorAll('a[href^="#"]').forEach(anchor=>{
+
+    anchor.addEventListener("click",function(e){
+
+        e.preventDefault();
+
+        const destino=document.querySelector(
+            this.getAttribute("href")
+        );
+
+        if(destino){
+
+            destino.scrollIntoView({
+
+                behavior:"smooth",
+
+                block:"start"
+
+            });
+
+        }
+
+    });
+
+});
+
+
+/* ===========================
+EFEITO PARALLAX
+=========================== */
+
+const gradient=document.getElementById("gradient");
+
+window.addEventListener("mousemove",e=>{
+
+    const x=e.clientX/window.innerWidth;
+
+    const y=e.clientY/window.innerHeight;
+
+    gradient.style.transform=
+    `translate(${x*20-10}px,${y*20-10}px)`;
+
+});
+
+
+/* ===========================
+EFEITO DOS BOTÕES
+=========================== */
+
+document.querySelectorAll(".btn").forEach(btn=>{
+
+    btn.addEventListener("mouseenter",()=>{
+
+        btn.style.transform="translateY(-4px) scale(1.03)";
+
+    });
+
+    btn.addEventListener("mouseleave",()=>{
+
+        btn.style.transform="translateY(0) scale(1)";
+
+    });
+
+});
+
+
+/* ===========================
+MOVIMENTO DA ÓRBITA
+=========================== */
+
+const orbit=document.querySelector(".orbit");
+
+window.addEventListener("mousemove",e=>{
+
+    const rx=(e.clientY/window.innerHeight-.5)*8;
+
+    const ry=(e.clientX/window.innerWidth-.5)*-8;
+
+    orbit.style.transform=
+
+    `rotateX(${rx}deg)
+     rotateY(${ry}deg)`;
+
+});
+
+
+/* ===========================
+ANIMAÇÃO DOS CARDS
+=========================== */
+
+document.querySelectorAll(".card,.project,.timeCard").forEach(card=>{
+
+    card.addEventListener("mouseenter",()=>{
+
+        card.style.boxShadow=
+        "0 20px 45px rgba(0,180,255,.18)";
+
+    });
+
+    card.addEventListener("mouseleave",()=>{
+
+        card.style.boxShadow="";
+
+    });
+
+});
+
+
+/* ===========================
+INICIALIZAÇÃO
+=========================== */
+
+console.log("Projeto Origem iniciado com sucesso.");
+
+</script>
+</body>
+</html>
