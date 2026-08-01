@@ -2162,7 +2162,6 @@ function drawBackground(deltaTime){
     for(const nebula of nebulas){
 
         nebula.update(deltaTime);
-
         nebula.draw();
 
     }
@@ -2171,7 +2170,6 @@ function drawBackground(deltaTime){
     for(const star of stars){
 
         star.update(deltaTime);
-
         star.draw();
 
     }
@@ -2183,7 +2181,6 @@ function drawBackground(deltaTime){
     for(const particle of particles){
 
         particle.update(deltaTime);
-
         particle.draw();
 
     }
@@ -2248,9 +2245,9 @@ let lastTime = performance.now();
 
 function animateSpace(time){
 
-    let deltaTime = (time - lastTime) / 16.67;
+    let deltaTime = (time-lastTime)/16.67;
 
-    lastTime = time;
+    lastTime=time;
 
     drawBackground(deltaTime);
 
@@ -2261,7 +2258,6 @@ function animateSpace(time){
 }
 
 animateSpace();
-
   /* ===========================
 MENU MOBILE
 =========================== */
