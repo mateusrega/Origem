@@ -514,16 +514,20 @@ transform:rotate(360deg);
 
 }
 
-   
-/* ===========================
-TIMELINE
+  /* ===========================
+TIMELINE EVOLUTIVA
 =========================== */
+
 
 .timelineSection{
 
 overflow:hidden;
 
+position:relative;
+
 }
+
+
 
 .sectionTitle{
 
@@ -535,6 +539,8 @@ margin:0 auto 70px;
 
 }
 
+
+
 .sectionTitle h2{
 
 font-size:clamp(2rem,5vw,3.2rem);
@@ -542,6 +548,8 @@ font-size:clamp(2rem,5vw,3.2rem);
 margin-bottom:20px;
 
 }
+
+
 
 .sectionTitle p{
 
@@ -554,19 +562,62 @@ font-size:1.05rem;
 }
 
 
+
+/* CONTAINER DA LINHA */
+
 .timeline{
 
 display:flex;
 
-gap:25px;
+align-items:center;
+
+gap:40px;
 
 overflow-x:auto;
 
-padding:30px 10px 50px;
+padding:50px 20px 80px;
 
 scroll-snap-type:x mandatory;
 
+position:relative;
+
 }
+
+
+
+/* linha energética */
+
+.timeline::before{
+
+content:"";
+
+position:absolute;
+
+height:2px;
+
+top:50%;
+
+left:0;
+
+right:0;
+
+background:
+
+linear-gradient(
+90deg,
+transparent,
+rgba(89,212,255,.5),
+rgba(69,255,191,.5),
+transparent
+);
+
+filter:blur(.5px);
+
+}
+
+
+
+/* scrollbar */
 
 .timeline::-webkit-scrollbar{
 
@@ -574,37 +625,116 @@ height:8px;
 
 }
 
+
 .timeline::-webkit-scrollbar-thumb{
 
-background:rgba(255,255,255,.15);
+background:rgba(255,255,255,.18);
 
 border-radius:20px;
 
 }
 
 
+
+/* CARDS */
+
+
 .timeCard{
 
-min-width:280px;
+min-width:300px;
 
-background:var(--panel);
+max-width:320px;
 
-border:1px solid var(--panelBorder);
+background:
 
-border-radius:var(--radius);
+linear-gradient(
+145deg,
+rgba(20,32,55,.85),
+rgba(5,10,20,.85)
+);
 
-padding:30px;
+
+border:1px solid rgba(255,255,255,.08);
+
+border-radius:35px;
+
+padding:35px;
+
 
 scroll-snap-align:center;
 
-transition:.35s;
 
 position:relative;
 
 overflow:hidden;
 
+
+box-shadow:
+
+0 20px 50px rgba(0,0,0,.45),
+
+0 0 30px rgba(89,212,255,.08);
+
+
+transition:
+
+transform .6s ease,
+
+box-shadow .4s ease,
+
+border .4s ease;
+
+
+/* animação inicial */
+
+opacity:0;
+
+transform:
+translateY(80px)
+rotate(-3deg);
+
 }
 
+
+
+/* entrada */
+
+.timeCard.active{
+
+opacity:1;
+
+transform:
+translateY(0)
+rotate(0deg);
+
+}
+
+
+
+/* alternar altura */
+
+.timeCard:nth-child(even){
+
+margin-top:80px;
+
+transform:
+translateY(80px)
+rotate(3deg);
+
+}
+
+
+.timeCard:nth-child(even).active{
+
+transform:
+translateY(0)
+rotate(0deg);
+
+}
+
+
+
+/* brilho interno */
 
 .timeCard::before{
 
@@ -612,30 +742,103 @@ content:"";
 
 position:absolute;
 
-width:120px;
+width:180px;
 
-height:120px;
+height:180px;
 
 border-radius:50%;
 
-background:var(--glow);
 
-filter:blur(40px);
+background:
 
-top:-40px;
+radial-gradient(
+circle,
+rgba(89,212,255,.35),
+transparent 70%
+);
 
-right:-40px;
+
+top:-80px;
+
+right:-80px;
+
+
+filter:blur(25px);
+
 
 }
+
+
+
+/* ponto de conexão */
+
+
+.timeCard::after{
+
+content:"";
+
+position:absolute;
+
+width:14px;
+
+height:14px;
+
+border-radius:50%;
+
+
+background:
+
+linear-gradient(
+135deg,
+var(--primary),
+var(--secondary)
+);
+
+
+bottom:-47px;
+
+left:50%;
+
+
+transform:translateX(-50%);
+
+
+box-shadow:
+
+0 0 25px var(--primary);
+
+
+}
+
+
+
+/* interação */
 
 
 .timeCard:hover{
 
-transform:translateY(-10px);
+transform:
 
-border-color:rgba(89,212,255,.4);
+translateY(-15px)
+scale(1.04);
+
+
+border-color:
+
+rgba(89,212,255,.5);
+
+
+box-shadow:
+
+0 25px 70px rgba(0,0,0,.55),
+
+0 0 40px rgba(89,212,255,.25);
 
 }
+
+
+
+/* texto */
 
 
 .timeNumber{
@@ -651,13 +854,15 @@ margin-bottom:15px;
 }
 
 
+
 .timeCard h3{
 
-font-size:1.35rem;
+font-size:1.4rem;
 
 margin-bottom:12px;
 
 }
+
 
 
 .timeCard p{
