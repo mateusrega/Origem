@@ -1815,10 +1815,6 @@ function resizeCanvas(){
     canvas.width = w;
     canvas.height = h;
 
-    createStars();
-    createParticles();
-    createNebulas();
-
 }
 
 const stars = [];
@@ -1843,9 +1839,11 @@ class Star{
 
     }
 
+
     reset(){
 
         this.x = random(0,w);
+
         this.y = random(0,h);
 
         this.size = random(.3,2.2);
@@ -1858,38 +1856,55 @@ class Star{
 
     }
 
-    update(){
 
-        this.y += this.speed;
+    update(deltaTime){
 
-        this.alpha += (Math.random()-.5)*this.twinkle;
+        this.y += this.speed * deltaTime;
 
-        if(this.alpha<.15)this.alpha=.15;
-        if(this.alpha>1)this.alpha=1;
+
+        this.alpha += 
+        (Math.random()-.5)*this.twinkle;
+
+
+        if(this.alpha<.15)
+            this.alpha=.15;
+
+
+        if(this.alpha>1)
+            this.alpha=1;
+
 
         if(this.y>h){
 
             this.y=0;
+
             this.x=random(0,w);
 
         }
 
     }
 
+
     draw(){
 
         ctx.beginPath();
 
-        ctx.fillStyle=`rgba(255,255,255,${this.alpha})`;
+        ctx.fillStyle=
+        `rgba(255,255,255,${this.alpha})`;
 
-        ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+        ctx.arc(
+            this.x,
+            this.y,
+            this.size,
+            0,
+            Math.PI*2
+        );
 
         ctx.fill();
 
     }
 
-}
-
+       }
 class Particle{
 
     constructor(){
@@ -1916,10 +1931,11 @@ class Particle{
 
     }
 
-    update(){
+    update(deltaTime){
 
-        this.x+=this.vx;
-        this.y+=this.vy;
+    this.x += this.vx * deltaTime;
+
+    this.y += this.vy * deltaTime;
 
         if(this.x<0)this.x=w;
         if(this.x>w)this.x=0;
@@ -1993,11 +2009,11 @@ class Nebula{
         "0,255,180";
 
     }
+update(deltaTime){
 
-    update(){
+    this.x += this.dx * deltaTime;
 
-        this.x+=this.dx;
-        this.y+=this.dy;
+    this.y += this.dy * deltaTime;
 
         if(this.x<-this.radius)this.x=w+this.radius;
         if(this.x>w+this.radius)this.x=-this.radius;
@@ -2138,31 +2154,35 @@ function drawConnections(){
 
 }
 
-function drawBackground(){
+function drawBackground(deltaTime){
 
     ctx.clearRect(0,0,w,h);
 
+
     for(const nebula of nebulas){
 
-        nebula.update();
+        nebula.update(deltaTime);
 
         nebula.draw();
 
     }
 
+
     for(const star of stars){
 
-        star.update();
+        star.update(deltaTime);
 
         star.draw();
 
     }
 
+
     drawConnections();
+
 
     for(const particle of particles){
 
-        particle.update();
+        particle.update(deltaTime);
 
         particle.draw();
 
@@ -2224,9 +2244,15 @@ function particleAttraction(){
 
 }
 
-function animateSpace(){
+let lastTime = performance.now();
 
-    drawBackground();
+function animateSpace(time){
+
+    let deltaTime = (time - lastTime) / 16.67;
+
+    lastTime = time;
+
+    drawBackground(deltaTime);
 
     particleAttraction();
 
