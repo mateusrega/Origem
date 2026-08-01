@@ -758,7 +758,6 @@ line-height:1.75;
 
 }
 
-
 /* ===========================
 LABORATÓRIO
 =========================== */
@@ -782,9 +781,7 @@ transparent
 
 background:rgba(10,18,32,.7);
 
-border:
-
-1px solid rgba(255,255,255,.08);
+border:1px solid rgba(255,255,255,.08);
 
 border-radius:25px;
 
@@ -799,6 +796,7 @@ gap:50px;
 align-items:center;
 
 }
+
 
 
 .labVisual{
@@ -819,35 +817,17 @@ position:relative;
 
 overflow:hidden;
 
-}
+display:flex;
 
+align-items:center;
 
-.atom{
-
-position:absolute;
-
-left:50%;
-
-top:50%;
-
-width:70px;
-
-height:70px;
-
-border-radius:50%;
-
-background:
-
-radial-gradient(circle,
-var(--secondary),
-#063);
-
-transform:translate(-50%,-50%);
-
-box-shadow:0 0 35px var(--secondary);
+justify-content:center;
 
 }
 
+
+
+/* CÍRCULO MAIOR */
 
 .ring{
 
@@ -869,7 +849,71 @@ transform:translate(-50%,-50%);
 
 animation:spinSlow 15s linear infinite;
 
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+overflow:hidden;
+
 }
+
+
+
+/* NÚCLEO */
+
+.atom{
+
+width:70px;
+
+height:70px;
+
+border-radius:50%;
+
+background:
+
+radial-gradient(circle,
+var(--secondary),
+#063);
+
+
+box-shadow:
+
+0 0 15px var(--secondary),
+
+0 0 35px rgba(69,255,191,.45);
+
+
+position:relative;
+
+}
+
+
+
+/* brilho interno suave */
+
+.atom::after{
+
+content:"";
+
+position:absolute;
+
+inset:-20px;
+
+border-radius:50%;
+
+background:
+
+radial-gradient(circle,
+rgba(69,255,191,.35),
+transparent 70%);
+
+
+z-index:-1;
+
+}
+
 
 
 .labText h2{
@@ -879,6 +923,7 @@ font-size:2.4rem;
 margin-bottom:20px;
 
 }
+
 
 
 .labText p{
