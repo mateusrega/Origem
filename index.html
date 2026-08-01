@@ -733,34 +733,50 @@ ANIMAÇÃO DE ENTRADA
 
 /* alternância vertical */
 
+.timeCard:nth-child(odd){
+
+    margin-top:0;
+
+    transform:
+    translateY(120px)
+    scale(.75)
+    rotate(-8deg);
+
+}
+
+
 .timeCard:nth-child(even){
 
     margin-top:90px;
 
     transform:
-
     translateY(120px)
-
     scale(.75)
-
     rotate(8deg);
 
 }
 
 
+/* estado ativo */
+
+.timeCard:nth-child(odd).active{
+
+    transform:
+    translateY(0)
+    scale(1)
+    rotate(-1.5deg);
+
+}
+
 
 .timeCard:nth-child(even).active{
 
     transform:
-
     translateY(0)
-
     scale(1)
-
-    rotate(0deg);
+    rotate(1.5deg);
 
 }
-
 
 
 /* ===========================
