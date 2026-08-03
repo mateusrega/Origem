@@ -336,7 +336,11 @@ transition:transform .15s linear;
 
 transform-origin:center left;
 
-animation:textFloat 10s ease-in-out infinite;
+animation:
+  textCounterRotate 120s linear infinite reverse,
+  textFloat 10s ease-in-out infinite;
+
+transform-origin:center center;
     
 }
 
@@ -564,6 +568,22 @@ padding:18px;
     }
 
 }
+
+  @keyframes textCounterRotate{
+
+    from{
+
+        transform:rotate(2deg);
+
+    }
+
+    to{
+
+        transform:rotate(-358deg);
+
+    }
+
+  }
   
 @keyframes heroFloat{
 
