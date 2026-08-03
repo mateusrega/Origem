@@ -436,6 +436,20 @@ will-change:transform;
 
 }
 
+  .orbitWrapper{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    transition:transform .25s ease-out;
+
+    will-change:transform;
+
+  }
+   
 .orbit{
 
 width:422px;
@@ -1332,25 +1346,31 @@ grid-template-columns:1fr;
 
   .timeline{
 
-padding:30px 6vw 45px;
+    width:100vw;
 
-gap:18px;
+    margin-left:calc(50% - 50vw);
 
-overflow-x:auto;
+    padding:30px 8vw 45px;
 
-scroll-padding-left:6vw;
+    gap:18px;
+
+    overflow-x:auto;
+
+    scroll-snap-type:x mandatory;
+
+    scroll-padding-left:8vw;
 
 }
-
 
 .timeCard{
 
-min-width:78vw;
+    min-width:78vw;
 
-max-width:78vw;
+    max-width:78vw;
 
-}
-  
+    flex:0 0 auto;
+
+  }
 
 .labBox{
 
@@ -1459,20 +1479,17 @@ margin-bottom:14px;
 }
 
 
-  .timeline{
+.timeline{
 
-padding:25px 5vw 45px;
-
-gap:16px;
+    padding:25px 8vw 40px;
 
 }
 
-
 .timeCard{
 
-min-width:74vw;
+    min-width:72vw;
 
-max-width:74vw;
+    max-width:72vw;
 
 }
 
@@ -1607,19 +1624,20 @@ Meus projetos
 
 <div class="heroVisual reveal">
 
+    <div class="orbitWrapper">
 
-<div class="orbit">
+        <div class="orbit">
 
-<div class="core">
+            <div class="core">
 
-Origem<br>
+                Origem<br>
+                da Vida
 
-da Vida
+            </div>
 
-</div>
+        </div>
 
-</div>
-
+    </div>
 
 </div>
 
@@ -2732,25 +2750,19 @@ document.querySelectorAll(".btn").forEach(btn=>{
 MOVIMENTO DA ÓRBITA
 =========================== */
 
-const orbit=document.querySelector(".orbit");
+const orbitWrapper=document.querySelector(".orbitWrapper");
 const heroText=document.querySelector(".heroText");
-
+  
 window.addEventListener("mousemove",e=>{
 
-    const x=e.clientX/window.innerWidth-.5;
-    const y=e.clientY/window.innerHeight-.5;
+    const x=(e.clientX/window.innerWidth)-0.5;
+    const y=(e.clientY/window.innerHeight)-0.5;
 
-    orbit.style.transform=
-    `
-    rotateX(${y*10}deg)
-    rotateY(${-x*10}deg)
-    translateZ(30px)
-    `;
+    orbitWrapper.style.transform=
+        `translate(${x*30}px,${y*30}px)`;
 
     heroText.style.transform=
-    `
-    translate(${x*10}px,${y*10}px)
-    `;
+        `translate(${x*12}px,${y*12}px)`;
 
 });
 
