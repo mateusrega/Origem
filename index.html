@@ -321,6 +321,19 @@ align-items:center;
 
 }
 
+
+  .heroText{
+
+position:relative;
+
+z-index:5;
+
+will-change:transform;
+
+}
+
+
+  
 .heroText h1{
 
 font-size:clamp(2.8rem,7vw,5.3rem);
@@ -416,6 +429,10 @@ display:flex;
 justify-content:center;
 
 align-items:center;
+
+z-index:2;
+
+will-change:transform;
 
 }
 
@@ -872,9 +889,11 @@ CARDS PRINCIPAIS
 
 display:grid;
 
-grid-template-columns:repeat(3,1fr);
+grid-template-columns:repeat(2,minmax(0,1fr));
 
-gap:25px;
+gap:18px;
+
+align-items:stretch;
 
 }
 
@@ -885,7 +904,7 @@ background:var(--panel);
 
 border:1px solid var(--panelBorder);
 
-padding:35px;
+padding:24px;
 
 border-radius:var(--radius);
 
@@ -908,10 +927,13 @@ border-color:rgba(89,212,255,.35);
 
 
 .icon{
+width:46px;
 
-width:55px;
+height:46px;
 
-height:55px;
+font-size:1.35rem;
+
+margin-bottom:18px;
 
 border-radius:15px;
 
@@ -920,10 +942,6 @@ display:flex;
 align-items:center;
 
 justify-content:center;
-
-font-size:1.6rem;
-
-margin-bottom:25px;
 
 background:
 linear-gradient(135deg,
@@ -1312,6 +1330,28 @@ grid-template-columns:1fr;
 }
 
 
+  .timeline{
+
+padding:30px 6vw 45px;
+
+gap:18px;
+
+overflow-x:auto;
+
+scroll-padding-left:6vw;
+
+}
+
+
+.timeCard{
+
+min-width:78vw;
+
+max-width:78vw;
+
+}
+  
+
 .labBox{
 
 grid-template-columns:1fr;
@@ -1372,7 +1412,71 @@ display:block;
 
 @media(max-width:500px){
 
+.cards{
 
+grid-template-columns:repeat(2,1fr);
+
+gap:14px;
+
+}
+
+
+.card{
+
+padding:18px;
+
+border-radius:22px;
+
+}
+
+
+.card h3{
+
+font-size:1.05rem;
+
+}
+
+
+.card p{
+
+font-size:.82rem;
+
+line-height:1.55;
+
+}
+
+
+.icon{
+
+width:40px;
+
+height:40px;
+
+font-size:1.2rem;
+
+margin-bottom:14px;
+
+}
+
+
+  .timeline{
+
+padding:25px 5vw 45px;
+
+gap:16px;
+
+}
+
+
+.timeCard{
+
+min-width:74vw;
+
+max-width:74vw;
+
+}
+
+  
 section{
 
 padding:80px 0;
@@ -2629,20 +2733,26 @@ MOVIMENTO DA ÓRBITA
 =========================== */
 
 const orbit=document.querySelector(".orbit");
+const heroText=document.querySelector(".heroText");
 
 window.addEventListener("mousemove",e=>{
 
-    const rx=(e.clientY/window.innerHeight-.5)*8;
-
-    const ry=(e.clientX/window.innerWidth-.5)*-8;
+    const x=e.clientX/window.innerWidth-.5;
+    const y=e.clientY/window.innerHeight-.5;
 
     orbit.style.transform=
+    `
+    rotateX(${y*10}deg)
+    rotateY(${-x*10}deg)
+    translateZ(30px)
+    `;
 
-    `rotateX(${rx}deg)
-     rotateY(${ry}deg)`;
+    heroText.style.transform=
+    `
+    translate(${x*10}px,${y*10}px)
+    `;
 
 });
-
 
 /* ===========================
 ANIMAÇÃO DOS CARDS
