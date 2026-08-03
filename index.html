@@ -330,8 +330,13 @@ z-index:5;
 
 will-change:transform;
 
-}
+transform-style:preserve-3d;
 
+transition:transform .15s linear;
+
+transform-origin:center left;
+
+}
 
   
 .heroText h1{
@@ -674,10 +679,9 @@ CARDS DA TIMELINE
 
 
     transform:
-    translateY(120px)
-    scale(.75)
-    rotate(-8deg);
-
+translateY(120px)
+scale(.55)
+rotate(-12deg);
 
     box-shadow:
 
@@ -771,22 +775,20 @@ ANIMAÇÃO DE ENTRADA
     margin-top:0;
 
     transform:
-    translateY(120px)
-    scale(.75)
-    rotate(-8deg);
-
+translateY(120px)
+scale(.55)
+rotate(-12deg);
 }
 
 
 .timeCard:nth-child(even){
 
-    margin-top:90px;
+    margin-top:110px;
 
     transform:
-    translateY(120px)
-    scale(.75)
-    rotate(8deg);
-
+translateY(120px)
+scale(.55)
+rotate(12deg);
 }
 
 
@@ -1487,9 +1489,9 @@ margin-bottom:14px;
 
 .timeCard{
 
-    min-width:72vw;
+    min-width:64vw;
 
-    max-width:72vw;
+    max-width:64vw;
 
 }
 
@@ -2752,7 +2754,7 @@ MOVIMENTO DA ÓRBITA
 
 const orbitWrapper=document.querySelector(".orbitWrapper");
 const heroText=document.querySelector(".heroText");
-  
+
 window.addEventListener("mousemove",e=>{
 
     const x=(e.clientX/window.innerWidth)-0.5;
@@ -2762,7 +2764,12 @@ window.addEventListener("mousemove",e=>{
         `translate(${x*30}px,${y*30}px)`;
 
     heroText.style.transform=
-        `translate(${x*12}px,${y*12}px)`;
+        `
+        perspective(1200px)
+        rotateY(${x*-6}deg)
+        rotateX(${y*6}deg)
+        translate(${x*8}px,${y*8}px)
+        `;
 
 });
 
