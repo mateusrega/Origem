@@ -508,7 +508,8 @@ left:50%;
 
 top:50%;
 
-transform:translate(-50%,-50%);
+transform-origin:center;
+animation:coreTextRotate 40s linear infinite reverse;
 
 width:150px;
 
@@ -536,6 +537,34 @@ font-weight:700;
 text-align:center;
 
 padding:18px;
+
+}
+
+.core span{
+
+    display:block;
+
+    animation:coreTextRotate 40s linear infinite reverse;
+
+}
+  
+@keyframes coreTextRotate{
+
+    from{
+
+        transform:
+        translate(-50%,-50%)
+        rotate(0deg);
+
+    }
+
+    to{
+
+        transform:
+        translate(-50%,-50%)
+        rotate(-360deg);
+
+    }
 
 }
   
@@ -1682,7 +1711,7 @@ Projeto Origem
 
 <h1>
 
-Como a matéria aprendeu a viver?     TESTE
+Como a matéria aprendeu a viver?
 
 </h1>
 
