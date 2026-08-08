@@ -473,6 +473,8 @@ border-radius:50%;
 border:1px solid rgba(255,255,255,.08);
 
 position:relative;
+
+animation:spinSlow 60s linear infinite;
   
 }
 
@@ -658,20 +660,19 @@ padding:18px;
   
 @keyframes spinSlow{
 
-from{
+    from{
 
-transform:rotate(0deg);
+        transform:rotate(0deg);
+
+    }
+
+    to{
+
+        transform:rotate(-360deg);
+
+    }
 
 }
-
-to{
-
-transform:rotate(360deg);
-
-}
-
-}
-
   /* ===========================
 TIMELINE EVOLUTIVA
 =========================== */
