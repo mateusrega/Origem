@@ -570,33 +570,7 @@ padding:18px;
 
 }
   
-/*@keyframes textFloat{
 
-    0%{
-
-        transform:
-        translateY(0px)
-        rotate(.5deg);
-
-    }
-
-    50%{
-
-        transform:
-        translateY(8px)
-        rotate(-.5deg);
-
-    }
-
-    100%{
-
-        transform:
-        translateY(0px)
-        rotate(.5deg);
-
-    }
-
-}*/
   
 @keyframes heroFloat{
 
@@ -2285,15 +2259,23 @@ window.addEventListener("resize", resizeCanvas);
 
 function resizeCanvas(){
 
-    w = window.innerWidth;
-    h = window.innerHeight;
+    const newW = window.innerWidth;
+    const newH = window.innerHeight;
+
+    if(
+        Math.abs(newW - w) < 10 &&
+        Math.abs(newH - h) < 10
+    ){
+
+        return;
+
+    }
+
+    w = newW;
+    h = newH;
 
     canvas.width = w;
     canvas.height = h;
-
-    createStars();
-    createParticles();
-    createNebulas();
 
 }
 
