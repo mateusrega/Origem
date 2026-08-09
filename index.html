@@ -2537,285 +2537,136 @@ class Particle{
     reset(){
 
         this.x = random(0,w);
+
         this.y = random(0,h);
+
+        /*
+        0 = azul
+        1 = verde
+        2 = roxo/rosa
+        */
+
+        this.type = Math.floor(Math.random()*3);
 
 
         /*
-        Velocidade inicial em
-        pixels por segundo.
+        Cada tipo possui uma pequena
+        diferença individual.
         */
 
-        this.vx = random(-12,12);
-        this.vy = random(-12,12);
+        this.mass = random(.85,1.15);
 
+        this.noise = random(0,Math.PI*2);
+
+        this.noiseSpeed = random(.7,1.3);
+
+
+        /*
+        Velocidade inicial
+        */
+
+        this.vx = random(-.2,.2);
+
+        this.vy = random(-.2,.2);
+
+
+        /*
+        Tamanho
+        */
 
         this.radius = random(1.5,4);
 
 
-        this.color =
-        Math.random() > .5
-        ?
-        "89,212,255"
-        :
-        "69,255,191";
-
-
         /*
-        Pequena diferença individual
-        deixa as partículas menos uniformes.
+        Cores
         */
 
-        this.mass = random(.8,1.2);
+        if(this.type === 0){
+
+            this.color = "89,212,255";
+
+        }
+
+        else if(this.type === 1){
+
+            this.color = "69,255,191";
+
+        }
+
+        else{
+
+            this.color = "225,105,225";
+
+        }
 
     }
 
 
     update(deltaTime){
 
-        let ax = 0;
-        let ay = 0;
-
-
         /*
-        ===========================
-        INTERAÇÃO ENTRE PARTÍCULAS
-        ===========================
-        */
-
-        for(const other of particles){
-
-            if(other === this){
-
-                continue;
-
-            }
-
-
-            let dx = other.x - this.x;
-            let dy = other.y - this.y;
-
-
-            /*
-            Distância ao quadrado.
-            Evita sqrt quando não precisamos.
-            */
-
-            let distSq = dx*dx + dy*dy;
-
-
-            if(distSq > ATTRACTION_DISTANCE *
-                        ATTRACTION_DISTANCE){
-
-                continue;
-
-            }
-
-
-            let dist = Math.sqrt(distSq);
-
-
-            if(dist < 0.001){
-
-                continue;
-
-            }
-
-
-            /*
-            Vetor normalizado
-            */
-
-            const nx = dx / dist;
-            const ny = dy / dist;
-
-
-            /*
-            ===========================
-            REPULSÃO
-            ===========================
-
-            Quando duas partículas
-            ficam muito próximas,
-            elas se afastam.
-            */
-
-            if(dist < REPULSION_DISTANCE){
-
-                const strength =
-                (1 - dist / REPULSION_DISTANCE)
-                * REPULSION_FORCE;
-
-
-                ax -= nx * strength;
-                ay -= ny * strength;
-
-            }
-
-
-            /*
-            ===========================
-            ATRAÇÃO
-            ===========================
-
-            Fora da zona de repulsão,
-            partículas próximas tentam
-            se aproximar suavemente.
-            */
-
-            else{
-
-                const strength =
-                (1 - dist / ATTRACTION_DISTANCE)
-                * ATTRACTION_FORCE;
-
-
-                ax += nx * strength;
-                ay += ny * strength;
-
-            }
-
-        }
-
-
-        /*
-        ===========================
-        INTERAÇÃO COM O TOQUE
-        ===========================
-        */
-
-        if(pointer.active){
-
-            const dx =
-            pointer.x - this.x;
-
-            const dy =
-            pointer.y - this.y;
-
-            const distSq =
-            dx*dx + dy*dy;
-
-
-            const TOUCH_RADIUS = 190;
-
-
-            if(
-                distSq <
-                TOUCH_RADIUS * TOUCH_RADIUS
-            ){
-
-                const dist =
-                Math.sqrt(distSq) || 1;
-
-
-                const nx = dx / dist;
-                const ny = dy / dist;
-
-
-                /*
-                O toque atrai suavemente.
-                */
-
-                const strength =
-                (1 - dist / TOUCH_RADIUS)
-                * 18;
-
-
-                ax += nx * strength;
-                ay += ny * strength;
-
-            }
-
-        }
-
-
-        /*
-        ===========================
-        MOVIMENTO
-        ===========================
-        */
-
-        this.vx += ax * deltaTime;
-        this.vy += ay * deltaTime;
-
-
-        /*
-        ===========================
-        AMORTECIMENTO
-        ===========================
-        */
-
-        const damping =
-        Math.pow(DAMPING,deltaTime*60);
-
-
-        this.vx *= damping;
-        this.vy *= damping;
-
-
-        /*
-        ===========================
-        VELOCIDADE MÁXIMA
-        ===========================
-        */
-
-        const speed =
-        Math.sqrt(
-            this.vx*this.vx +
-            this.vy*this.vy
-        );
-
-
-        if(speed > MAX_SPEED){
-
-            const factor =
-            MAX_SPEED / speed;
-
-            this.vx *= factor;
-            this.vy *= factor;
-
-        }
-
-
-        /*
-        ===========================
-        MOVIMENTO
-        ===========================
+        Movimento básico.
+        A física de interação será adicionada
+        na próxima etapa.
         */
 
         this.x += this.vx * deltaTime;
+
         this.y += this.vy * deltaTime;
 
 
         /*
-        ===========================
-        BORDAS
+        Pequena perturbação orgânica.
 
-        A partícula atravessa a borda
-        e reaparece do outro lado.
-        ===========================
+        É propositalmente muito fraca.
+        Ela evita que partículas entrem
+        em equilíbrio perfeito.
         */
 
-        if(this.x < -10){
+        const time = performance.now() * 0.001;
 
-            this.x = w + 10;
+        this.vx +=
+            Math.cos(
+                time * this.noiseSpeed +
+                this.noise
+            ) * 0.0008 * deltaTime;
+
+
+        this.vy +=
+            Math.sin(
+                time * this.noiseSpeed +
+                this.noise
+            ) * 0.0008 * deltaTime;
+
+
+        /*
+        Limites da tela.
+
+        A partícula sai por um lado
+        e reaparece pelo outro.
+        */
+
+        if(this.x < 0){
+
+            this.x = w;
 
         }
 
-        if(this.x > w + 10){
+        if(this.x > w){
 
-            this.x = -10;
-
-        }
-
-        if(this.y < -10){
-
-            this.y = h + 10;
+            this.x = 0;
 
         }
 
-        if(this.y > h + 10){
+        if(this.y < 0){
 
-            this.y = -10;
+            this.y = h;
+
+        }
+
+        if(this.y > h){
+
+            this.y = 0;
 
         }
 
@@ -2825,25 +2676,34 @@ class Particle{
     draw(){
 
         const g =
-        ctx.createRadialGradient(
-            this.x,
-            this.y,
-            0,
-            this.x,
-            this.y,
-            this.radius * 5
-        );
+            ctx.createRadialGradient(
+
+                this.x,
+                this.y,
+                0,
+
+                this.x,
+                this.y,
+                this.radius * 5
+
+            );
 
 
         g.addColorStop(
+
             0,
+
             `rgba(${this.color},0.9)`
+
         );
 
 
         g.addColorStop(
+
             1,
+
             `rgba(${this.color},0)`
+
         );
 
 
@@ -2854,11 +2714,13 @@ class Particle{
 
 
         ctx.arc(
+
             this.x,
             this.y,
             this.radius * 5,
             0,
-            Math.PI*2
+            Math.PI * 2
+
         );
 
 
@@ -2868,7 +2730,7 @@ class Particle{
 
 }
 
-
+  
 /* ===========================
 NEBULAS
 =========================== */
