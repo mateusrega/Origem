@@ -2249,49 +2249,204 @@ Explorando a fronteira entre matéria, vida e inteligência.
 const canvas = document.getElementById("space");
 const ctx = canvas.getContext("2d");
 
+
+/* ===========================
+FUNDO — SISTEMA DE PARTÍCULAS
+=========================== */
+
+const canvas = document.getElementById("space");
+const ctx = canvas.getContext("2d");
+
 let w = window.innerWidth;
 let h = window.innerHeight;
+
+
+/* ===========================
+CONFIGURAÇÃO
+=========================== */
+
+const STAR_COUNT = 260;
+const PARTICLE_COUNT = 70;
+const NEBULA_COUNT = 6;
+
+
+/*
+Velocidade máxima das partículas
+em pixels por segundo.
+*/
+
+const MAX_SPEED = 28;
+
+
+/*
+Distâncias de interação
+*/
+
+const ATTRACTION_DISTANCE = 170;
+const REPULSION_DISTANCE = 55;
+const CONNECTION_DISTANCE = 140;
+
+
+/*
+Forças
+
+Valores baixos deixam o movimento
+mais orgânico e menos mecânico.
+*/
+
+const ATTRACTION_FORCE = 7;
+const REPULSION_FORCE = 18;
+
+
+/*
+Amortecimento.
+Quanto mais próximo de 1,
+mais movimento é preservado.
+*/
+
+const DAMPING = 0.985;
+
+
+/* ===========================
+UTILITÁRIOS
+=========================== */
+
+function random(min,max){
+
+    return Math.random() * (max-min) + min;
+
+}
+
+
+function clamp(value,min,max){
+
+    return Math.max(min,Math.min(max,value));
+
+}
+
+
+/* ===========================
+CANVAS
+=========================== */
 
 canvas.width = w;
 canvas.height = h;
 
-window.addEventListener("resize", resizeCanvas);
+
+/*
+IMPORTANTE:
+
+Não recriamos as partículas quando
+o tamanho da viewport muda.
+
+A posição existente é preservada.
+*/
 
 function resizeCanvas(){
 
     const newW = window.innerWidth;
     const newH = window.innerHeight;
 
+    if(newW <= 0 || newH <= 0){
+
+        return;
+
+    }
+
+
+    const oldW = w;
+    const oldH = h;
+
+
+    /*
+    Se a alteração for muito pequena,
+    ignoramos.
+
+    Isso ajuda especialmente no celular
+    durante pequenas mudanças da viewport.
+    */
+
     if(
-        Math.abs(newW - w) < 10 &&
-        Math.abs(newH - h) < 10
+        Math.abs(newW-oldW) < 5 &&
+        Math.abs(newH-oldH) < 5
     ){
 
         return;
 
     }
 
+
     w = newW;
     h = newH;
+
 
     canvas.width = w;
     canvas.height = h;
 
+
+    /*
+    Em vez de recriar tudo,
+    adaptamos as posições existentes
+    ao novo tamanho.
+    */
+
+    const scaleX = oldW > 0 ? w/oldW : 1;
+    const scaleY = oldH > 0 ? h/oldH : 1;
+
+
+    for(const star of stars){
+
+        star.x *= scaleX;
+        star.y *= scaleY;
+
+        star.x = clamp(star.x,0,w);
+        star.y = clamp(star.y,0,h);
+
+    }
+
+
+    for(const particle of particles){
+
+        particle.x *= scaleX;
+        particle.y *= scaleY;
+
+        particle.x = clamp(particle.x,0,w);
+        particle.y = clamp(particle.y,0,h);
+
+    }
+
+
+    for(const nebula of nebulas){
+
+        nebula.x *= scaleX;
+        nebula.y *= scaleY;
+
+    }
+
 }
+
+
+/*
+resize pode acontecer quando a barra do
+navegador móvel aparece/desaparece.
+
+Isso não recria nada.
+*/
+
+window.addEventListener(
+    "resize",
+    resizeCanvas
+);
+
+
+/* ===========================
+ESTRELAS
+=========================== */
 
 const stars = [];
 const particles = [];
 const nebulas = [];
 
-const STAR_COUNT = 260;
-const PARTICLE_COUNT = 70;
-const NEBULA_COUNT = 6;
-
-function random(min,max){
-
-    return Math.random()*(max-min)+min;
-
-}
 
 class Star{
 
@@ -2300,6 +2455,7 @@ class Star{
         this.reset();
 
     }
+
 
     reset(){
 
@@ -2310,112 +2466,58 @@ class Star{
 
         this.alpha = random(.2,1);
 
-        this.speed = random(.02,.15);
+        /*
+        pixels por segundo
+        */
+
+        this.speed = random(1.2,9);
 
         this.twinkle = random(.002,.015);
 
     }
 
-    update(){
 
-        this.y += this.speed;
+    update(deltaTime){
 
-        this.alpha += (Math.random()-.5)*this.twinkle;
+        this.y += this.speed * deltaTime;
 
-        if(this.alpha<.15)this.alpha=.15;
-        if(this.alpha>1)this.alpha=1;
 
-        if(this.y>h){
+        this.alpha +=
+        (Math.random()-.5)
+        * this.twinkle
+        * deltaTime
+        * 60;
 
-            this.y=0;
-            this.x=random(0,w);
+
+        this.alpha = clamp(
+            this.alpha,
+            .15,
+            1
+        );
+
+
+        if(this.y > h){
+
+            this.y = 0;
+
+            this.x = random(0,w);
 
         }
 
     }
 
+
     draw(){
 
         ctx.beginPath();
 
-        ctx.fillStyle=`rgba(255,255,255,${this.alpha})`;
-
-        ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
-
-        ctx.fill();
-
-    }
-
-}
-
-class Particle{
-
-    constructor(){
-
-        this.reset();
-
-    }
-
-    reset(){
-
-        this.x=random(0,w);
-
-        this.y=random(0,h);
-
-        this.vx=random(-.4,.4);
-
-        this.vy=random(-.4,.4);
-
-        this.radius=random(1.5,4);
-
-        this.color=Math.random()>0.5?
-        "89,212,255":
-        "69,255,191";
-
-    }
-
-    update(){
-
-        this.x+=this.vx;
-        this.y+=this.vy;
-
-        if(this.x<0)this.x=w;
-        if(this.x>w)this.x=0;
-
-        if(this.y<0)this.y=h;
-        if(this.y>h)this.y=0;
-
-    }
-
-    draw(){
-
-        const g=ctx.createRadialGradient(
-            this.x,
-            this.y,
-            0,
-            this.x,
-            this.y,
-            this.radius*5
-        );
-
-        g.addColorStop(
-            0,
-            `rgba(${this.color},0.9)`
-        );
-
-        g.addColorStop(
-            1,
-            `rgba(${this.color},0)`
-        );
-
-        ctx.fillStyle=g;
-
-        ctx.beginPath();
+        ctx.fillStyle =
+        `rgba(255,255,255,${this.alpha})`;
 
         ctx.arc(
             this.x,
             this.y,
-            this.radius*5,
+            this.size,
             0,
             Math.PI*2
         );
@@ -2426,6 +2528,359 @@ class Particle{
 
 }
 
+
+/* ===========================
+PARTÍCULAS
+=========================== */
+
+class Particle{
+
+    constructor(){
+
+        this.reset();
+
+    }
+
+
+    reset(){
+
+        this.x = random(0,w);
+        this.y = random(0,h);
+
+
+        /*
+        Velocidade inicial em
+        pixels por segundo.
+        */
+
+        this.vx = random(-12,12);
+        this.vy = random(-12,12);
+
+
+        this.radius = random(1.5,4);
+
+
+        this.color =
+        Math.random() > .5
+        ?
+        "89,212,255"
+        :
+        "69,255,191";
+
+
+        /*
+        Pequena diferença individual
+        deixa as partículas menos uniformes.
+        */
+
+        this.mass = random(.8,1.2);
+
+    }
+
+
+    update(deltaTime){
+
+        let ax = 0;
+        let ay = 0;
+
+
+        /*
+        ===========================
+        INTERAÇÃO ENTRE PARTÍCULAS
+        ===========================
+        */
+
+        for(const other of particles){
+
+            if(other === this){
+
+                continue;
+
+            }
+
+
+            let dx = other.x - this.x;
+            let dy = other.y - this.y;
+
+
+            /*
+            Distância ao quadrado.
+            Evita sqrt quando não precisamos.
+            */
+
+            let distSq = dx*dx + dy*dy;
+
+
+            if(distSq > ATTRACTION_DISTANCE *
+                        ATTRACTION_DISTANCE){
+
+                continue;
+
+            }
+
+
+            let dist = Math.sqrt(distSq);
+
+
+            if(dist < 0.001){
+
+                continue;
+
+            }
+
+
+            /*
+            Vetor normalizado
+            */
+
+            const nx = dx / dist;
+            const ny = dy / dist;
+
+
+            /*
+            ===========================
+            REPULSÃO
+            ===========================
+
+            Quando duas partículas
+            ficam muito próximas,
+            elas se afastam.
+            */
+
+            if(dist < REPULSION_DISTANCE){
+
+                const strength =
+                (1 - dist / REPULSION_DISTANCE)
+                * REPULSION_FORCE;
+
+
+                ax -= nx * strength;
+                ay -= ny * strength;
+
+            }
+
+
+            /*
+            ===========================
+            ATRAÇÃO
+            ===========================
+
+            Fora da zona de repulsão,
+            partículas próximas tentam
+            se aproximar suavemente.
+            */
+
+            else{
+
+                const strength =
+                (1 - dist / ATTRACTION_DISTANCE)
+                * ATTRACTION_FORCE;
+
+
+                ax += nx * strength;
+                ay += ny * strength;
+
+            }
+
+        }
+
+
+        /*
+        ===========================
+        INTERAÇÃO COM O TOQUE
+        ===========================
+        */
+
+        if(pointer.active){
+
+            const dx =
+            pointer.x - this.x;
+
+            const dy =
+            pointer.y - this.y;
+
+            const distSq =
+            dx*dx + dy*dy;
+
+
+            const TOUCH_RADIUS = 190;
+
+
+            if(
+                distSq <
+                TOUCH_RADIUS * TOUCH_RADIUS
+            ){
+
+                const dist =
+                Math.sqrt(distSq) || 1;
+
+
+                const nx = dx / dist;
+                const ny = dy / dist;
+
+
+                /*
+                O toque atrai suavemente.
+                */
+
+                const strength =
+                (1 - dist / TOUCH_RADIUS)
+                * 18;
+
+
+                ax += nx * strength;
+                ay += ny * strength;
+
+            }
+
+        }
+
+
+        /*
+        ===========================
+        MOVIMENTO
+        ===========================
+        */
+
+        this.vx += ax * deltaTime;
+        this.vy += ay * deltaTime;
+
+
+        /*
+        ===========================
+        AMORTECIMENTO
+        ===========================
+        */
+
+        const damping =
+        Math.pow(DAMPING,deltaTime*60);
+
+
+        this.vx *= damping;
+        this.vy *= damping;
+
+
+        /*
+        ===========================
+        VELOCIDADE MÁXIMA
+        ===========================
+        */
+
+        const speed =
+        Math.sqrt(
+            this.vx*this.vx +
+            this.vy*this.vy
+        );
+
+
+        if(speed > MAX_SPEED){
+
+            const factor =
+            MAX_SPEED / speed;
+
+            this.vx *= factor;
+            this.vy *= factor;
+
+        }
+
+
+        /*
+        ===========================
+        MOVIMENTO
+        ===========================
+        */
+
+        this.x += this.vx * deltaTime;
+        this.y += this.vy * deltaTime;
+
+
+        /*
+        ===========================
+        BORDAS
+
+        A partícula atravessa a borda
+        e reaparece do outro lado.
+        ===========================
+        */
+
+        if(this.x < -10){
+
+            this.x = w + 10;
+
+        }
+
+        if(this.x > w + 10){
+
+            this.x = -10;
+
+        }
+
+        if(this.y < -10){
+
+            this.y = h + 10;
+
+        }
+
+        if(this.y > h + 10){
+
+            this.y = -10;
+
+        }
+
+    }
+
+
+    draw(){
+
+        const g =
+        ctx.createRadialGradient(
+            this.x,
+            this.y,
+            0,
+            this.x,
+            this.y,
+            this.radius * 5
+        );
+
+
+        g.addColorStop(
+            0,
+            `rgba(${this.color},0.9)`
+        );
+
+
+        g.addColorStop(
+            1,
+            `rgba(${this.color},0)`
+        );
+
+
+        ctx.fillStyle = g;
+
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+            this.x,
+            this.y,
+            this.radius * 5,
+            0,
+            Math.PI*2
+        );
+
+
+        ctx.fill();
+
+    }
+
+}
+
+
+/* ===========================
+NEBULAS
+=========================== */
+
 class Nebula{
 
     constructor(){
@@ -2434,40 +2889,66 @@ class Nebula{
 
     }
 
+
     reset(){
 
-        this.x=random(0,w);
+        this.x = random(0,w);
+        this.y = random(0,h);
 
-        this.y=random(0,h);
+        this.radius = random(180,320);
 
-        this.radius=random(180,320);
+        this.dx = random(-3,3);
+        this.dy = random(-3,3);
 
-        this.dx=random(-.05,.05);
 
-        this.dy=random(-.05,.05);
-
-        this.color=Math.random()>.5?
-        "0,180,255":
+        this.color =
+        Math.random() > .5
+        ?
+        "0,180,255"
+        :
         "0,255,180";
 
     }
 
-    update(){
 
-        this.x+=this.dx;
-        this.y+=this.dy;
+    update(deltaTime){
 
-        if(this.x<-this.radius)this.x=w+this.radius;
-        if(this.x>w+this.radius)this.x=-this.radius;
+        this.x += this.dx * deltaTime;
+        this.y += this.dy * deltaTime;
 
-        if(this.y<-this.radius)this.y=h+this.radius;
-        if(this.y>h+this.radius)this.y=-this.radius;
+
+        if(this.x < -this.radius){
+
+            this.x = w + this.radius;
+
+        }
+
+        if(this.x > w + this.radius){
+
+            this.x = -this.radius;
+
+        }
+
+
+        if(this.y < -this.radius){
+
+            this.y = h + this.radius;
+
+        }
+
+        if(this.y > h + this.radius){
+
+            this.y = -this.radius;
+
+        }
 
     }
 
+
     draw(){
 
-        const g=ctx.createRadialGradient(
+        const g =
+        ctx.createRadialGradient(
 
             this.x,
             this.y,
@@ -2479,24 +2960,30 @@ class Nebula{
 
         );
 
+
         g.addColorStop(
             0,
             `rgba(${this.color},0.08)`
         );
+
 
         g.addColorStop(
             .6,
             `rgba(${this.color},0.03)`
         );
 
+
         g.addColorStop(
             1,
             "rgba(0,0,0,0)"
         );
 
-        ctx.fillStyle=g;
+
+        ctx.fillStyle = g;
+
 
         ctx.beginPath();
+
 
         ctx.arc(
             this.x,
@@ -2506,88 +2993,150 @@ class Nebula{
             Math.PI*2
         );
 
+
         ctx.fill();
 
     }
 
 }
 
+
+/* ===========================
+CRIAÇÃO INICIAL
+=========================== */
+
 function createStars(){
 
-    stars.length=0;
+    stars.length = 0;
+
 
     for(let i=0;i<STAR_COUNT;i++){
 
-        stars.push(new Star());
+        stars.push(
+            new Star()
+        );
 
     }
 
 }
+
 
 function createParticles(){
 
-    particles.length=0;
+    particles.length = 0;
+
 
     for(let i=0;i<PARTICLE_COUNT;i++){
 
-        particles.push(new Particle());
+        particles.push(
+            new Particle()
+        );
 
     }
 
 }
+
 
 function createNebulas(){
 
-    nebulas.length=0;
+    nebulas.length = 0;
+
 
     for(let i=0;i<NEBULA_COUNT;i++){
 
-        nebulas.push(new Nebula());
+        nebulas.push(
+            new Nebula()
+        );
 
     }
 
 }
 
+
 createStars();
-
 createParticles();
-
 createNebulas();
 
 
-function drawConnections(){
+/* ===========================
+CONEXÕES
+=========================== */
 
-    const maxDistance = 140;
+function drawConnections(){
 
     for(let i=0;i<particles.length;i++){
 
         const a = particles[i];
 
-        for(let j=i+1;j<particles.length;j++){
+
+        for(
+            let j=i+1;
+            j<particles.length;
+            j++
+        ){
 
             const b = particles[j];
 
-            const dx = a.x - b.x;
-            const dy = a.y - b.y;
 
-            const dist = Math.sqrt(dx*dx + dy*dy);
-      if(dist < maxDistance){
+            const dx =
+            a.x - b.x;
 
-                const alpha = (1 - dist/maxDistance) * 0.15;
+            const dy =
+            a.y - b.y;
 
-                ctx.beginPath();
 
-                ctx.moveTo(a.x,a.y);
+            const distSq =
+            dx*dx + dy*dy;
 
-                ctx.lineTo(b.x,b.y);
 
-                ctx.strokeStyle = `rgba(89,212,255,${alpha})`;
+            if(
+                distSq >
+                CONNECTION_DISTANCE *
+                CONNECTION_DISTANCE
+            ){
 
-                ctx.lineWidth = 1;
-
-                ctx.stroke();
+                continue;
 
             }
+
+
+            const dist =
+            Math.sqrt(distSq);
+
+
+            /*
+            A linha fica mais forte
+            quanto mais próximas estão.
+            */
+
+            const alpha =
+            (1 - dist / CONNECTION_DISTANCE)
+            * .22;
+
+
+            ctx.beginPath();
+
+
+            ctx.moveTo(
+                a.x,
+                a.y
+            );
+
+
+            ctx.lineTo(
+                b.x,
+                b.y
+            );
+
+
+            ctx.strokeStyle =
+            `rgba(89,212,255,${alpha})`;
+
+
+            ctx.lineWidth = .7;
+
+
+            ctx.stroke();
 
         }
 
@@ -2595,31 +3144,193 @@ function drawConnections(){
 
 }
 
-function drawBackground(){
 
-    ctx.clearRect(0,0,w,h);
+/* ===========================
+TOQUE / PONTEIRO
+=========================== */
+
+const pointer = {
+
+    x:w/2,
+    y:h/2,
+
+    active:false,
+
+    lastInteraction:0
+
+};
+
+
+/*
+Mouse
+*/
+
+window.addEventListener(
+    "mousemove",
+    e=>{
+
+        pointer.x = e.clientX;
+        pointer.y = e.clientY;
+
+        pointer.active = true;
+
+        pointer.lastInteraction =
+        performance.now();
+
+    }
+);
+
+
+/*
+Toque
+*/
+
+window.addEventListener(
+    "touchstart",
+    e=>{
+
+        if(!e.touches.length){
+
+            return;
+
+        }
+
+
+        pointer.x =
+        e.touches[0].clientX;
+
+        pointer.y =
+        e.touches[0].clientY;
+
+        pointer.active = true;
+
+        pointer.lastInteraction =
+        performance.now();
+
+    },
+    {passive:true}
+);
+
+
+window.addEventListener(
+    "touchmove",
+    e=>{
+
+        if(!e.touches.length){
+
+            return;
+
+        }
+
+
+        pointer.x =
+        e.touches[0].clientX;
+
+        pointer.y =
+        e.touches[0].clientY;
+
+        pointer.active = true;
+
+        pointer.lastInteraction =
+        performance.now();
+
+    },
+    {passive:true}
+);
+
+
+window.addEventListener(
+    "touchend",
+    ()=>{
+
+        pointer.active = false;
+
+    },
+    {passive:true}
+);
+
+
+/* ===========================
+DESATIVA INTERAÇÃO DO MOUSE
+APÓS ALGUM TEMPO
+=========================== */
+
+function updatePointer(){
+
+    if(
+        pointer.active &&
+        performance.now() -
+        pointer.lastInteraction > 1200
+    ){
+
+        pointer.active = false;
+
+    }
+
+}
+
+
+/* ===========================
+FUNDO
+=========================== */
+
+function drawBackground(deltaTime){
+
+    ctx.clearRect(
+        0,
+        0,
+        w,
+        h
+    );
+
+
+    /*
+    Nebulosas
+    */
 
     for(const nebula of nebulas){
 
-        nebula.update();
-
+        nebula.update(deltaTime);
         nebula.draw();
 
     }
 
+
+    /*
+    Estrelas
+    */
+
     for(const star of stars){
 
-        star.update();
-
+        star.update(deltaTime);
         star.draw();
 
     }
 
-    drawConnections();
+
+    /*
+    Partículas
+    */
 
     for(const particle of particles){
 
-        particle.update();
+        particle.update(deltaTime);
+
+    }
+
+
+    /*
+    Conexões depois da atualização
+    */
+
+    drawConnections();
+
+
+    /*
+    Brilho das partículas
+    */
+
+    for(const particle of particles){
 
         particle.draw();
 
@@ -2627,69 +3338,54 @@ function drawBackground(){
 
 }
 
-let mouse = {
 
-    x: w/2,
+/* ===========================
+ANIMAÇÃO
+=========================== */
 
-    y: h/2
+let lastTime = performance.now();
 
-};
 
-window.addEventListener("mousemove",e=>{
+function animateSpace(currentTime){
 
-    mouse.x = e.clientX;
+    /*
+    DeltaTime em segundos.
+    */
 
-    mouse.y = e.clientY;
+    let deltaTime =
+    (currentTime - lastTime) / 1000;
 
-});
 
-window.addEventListener("touchmove",e=>{
+    lastTime = currentTime;
 
-    if(e.touches.length){
 
-        mouse.x = e.touches[0].clientX;
+    /*
+    Evita um salto gigante caso
+    o navegador fique alguns segundos
+    sem atualizar o canvas.
+    */
 
-        mouse.y = e.touches[0].clientY;
+    deltaTime =
+    Math.min(deltaTime,.033);
 
-    }
 
-},{passive:true});
+    updatePointer();
 
-function particleAttraction(){
 
-    for(const p of particles){
+    drawBackground(deltaTime);
 
-        const dx = mouse.x - p.x;
 
-        const dy = mouse.y - p.y;
-
-        const dist = Math.sqrt(dx*dx + dy*dy);
-
-        if(dist < 180){
-
-            p.vx += dx * 0.00003;
-
-            p.vy += dy * 0.00003;
-
-        }
-
-        p.vx *= 0.995;
-
-        p.vy *= 0.995;
-
-    }
+    requestAnimationFrame(
+        animateSpace
+    );
 
 }
 
-function animateSpace(){
 
-    drawBackground();
+requestAnimationFrame(
+    animateSpace
+);
 
-    particleAttraction();
-
-    requestAnimationFrame(animateSpace);
-
-}
 
 animateSpace();
 
