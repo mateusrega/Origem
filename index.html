@@ -2261,43 +2261,6 @@ const STAR_COUNT = 260;
 const PARTICLE_COUNT = 70;
 const NEBULA_COUNT = 6;
 
-
-/*
-Velocidade máxima das partículas
-em pixels por segundo.
-*/
-
-const MAX_SPEED = 50;
-
-
-/*
-Distâncias de interação
-*/
-
-const ATTRACTION_DISTANCE = 170;
-const REPULSION_DISTANCE = 75;
-const CONNECTION_DISTANCE = 140;
-
-
-/*
-Forças
-
-Valores baixos deixam o movimento
-mais orgânico e menos mecânico.
-*/
-
-const ATTRACTION_FORCE = 15;
-const REPULSION_FORCE = 40;
-
-
-/*
-Amortecimento.
-Quanto mais próximo de 1,
-mais movimento é preservado.
-*/
-
-const DAMPING = 0.985;
-
 /* ===========================
 PARTICLE LIFE
 =========================== */
@@ -2665,74 +2628,106 @@ class Particle{
 
     update(deltaTime){
 
-        /*
-        Movimento básico.
-        A física de interação será adicionada
-        na próxima etapa.
-        */
+    /*
+    Pequeno movimento orgânico.
+    */
 
-        this.x += this.vx * deltaTime;
-
-        this.y += this.vy * deltaTime;
+    const time =
+        performance.now() * 0.001;
 
 
-        /*
-        Pequena perturbação orgânica.
-
-        É propositalmente muito fraca.
-        Ela evita que partículas entrem
-        em equilíbrio perfeito.
-        */
-
-        const time = performance.now() * 0.001;
-
-        this.vx +=
-            Math.cos(
-                time * this.noiseSpeed +
-                this.noise
-            ) * 0.0008 * deltaTime;
+    this.vx +=
+        Math.cos(
+            time * this.noiseSpeed +
+            this.noise
+        ) *
+        0.035 *
+        deltaTime;
 
 
-        this.vy +=
-            Math.sin(
-                time * this.noiseSpeed +
-                this.noise
-            ) * 0.0008 * deltaTime;
+    this.vy +=
+        Math.sin(
+            time * this.noiseSpeed +
+            this.noise
+        ) *
+        0.035 *
+        deltaTime;
 
 
-        /*
-        Limites da tela.
+    /*
+    Amortecimento.
+    */
 
-        A partícula sai por um lado
-        e reaparece pelo outro.
-        */
+    const damping =
+        Math.pow(
+            PARTICLE_LIFE.damping,
+            deltaTime * 60
+        );
 
-        if(this.x < 0){
 
-            this.x = w;
+    this.vx *= damping;
 
-        }
+    this.vy *= damping;
 
-        if(this.x > w){
 
-            this.x = 0;
+    /*
+    Limite de velocidade.
+    */
 
-        }
+    const speed =
+        Math.sqrt(
+            this.vx * this.vx +
+            this.vy * this.vy
+        );
 
-        if(this.y < 0){
 
-            this.y = h;
+    if(
+        speed >
+        PARTICLE_LIFE.maxSpeed
+    ){
 
-        }
+        const factor =
+            PARTICLE_LIFE.maxSpeed /
+            speed;
 
-        if(this.y > h){
 
-            this.y = 0;
+        this.vx *= factor;
 
-        }
+        this.vy *= factor;
 
     }
 
+
+    /*
+    Movimento baseado em tempo.
+    */
+
+    this.x +=
+        this.vx * deltaTime * 60;
+
+
+    this.y +=
+        this.vy * deltaTime * 60;
+
+
+    /*
+    Teleporte suave pelas bordas.
+    */
+
+    if(this.x < 0)
+        this.x = w;
+
+    if(this.x > w)
+        this.x = 0;
+
+
+    if(this.y < 0)
+        this.y = h;
+
+    if(this.y > h)
+        this.y = 0;
+
+    }
 
     draw(){
 
@@ -3059,7 +3054,7 @@ function drawConnections(){
 
 }
 
-  function particleLife(){
+  function particleLife(deltaTime){
 
     const maxDistance =
         PARTICLE_LIFE.interactionRadius;
@@ -3078,99 +3073,85 @@ function drawConnections(){
             const b = particles[j];
 
 
+            /*
+            Distância com passagem pelas bordas.
+            */
+
             let dx = b.x - a.x;
             let dy = b.y - a.y;
 
 
-            /*
-            Distância considerando
-            a passagem pelas bordas.
-            */
+            if(dx > w / 2)
+                dx -= w;
 
-            if(dx > w / 2) dx -= w;
-            if(dx < -w / 2) dx += w;
+            if(dx < -w / 2)
+                dx += w;
 
-            if(dy > h / 2) dy -= h;
-            if(dy < -h / 2) dy += h;
+
+            if(dy > h / 2)
+                dy -= h;
+
+            if(dy < -h / 2)
+                dy += h;
 
 
             const distanceSquared =
-                dx * dx +
-                dy * dy;
+                dx * dx + dy * dy;
 
 
-            if(distanceSquared === 0){
-
+            if(distanceSquared < 0.0001)
                 continue;
-
-            }
 
 
             const distance =
                 Math.sqrt(distanceSquared);
 
 
-            if(distance > maxDistance){
-
+            if(distance > maxDistance)
                 continue;
-
-            }
 
 
             const nx = dx / distance;
             const ny = dy / distance;
 
 
-            /*
-            Força definida pela espécie.
-
-            A força de A sobre B
-            usa a espécie de A como origem.
-            */
-
-            const force =
+            const speciesForce =
                 PARTICLE_FORCES[a.type][b.type];
 
 
-            let interaction;
+            let force;
 
 
             /*
-            Muito próximas:
-            repulsão forte.
-
-            Isso impede que as partículas
-            ocupem o mesmo espaço.
+            REPULSÃO MUITO PRÓXIMA
             */
 
             if(distance < repulsionDistance){
 
-                const repulsion =
+                const close =
                     1 -
                     distance / repulsionDistance;
 
 
-                interaction =
-                    -repulsion * 1.5;
+                force =
+                    -close * 1.5;
 
             }
 
+            /*
+            INTERAÇÃO NORMAL
+            */
+
             else{
 
-                /*
-                Região de atração/repulsão.
-
-                A força diminui conforme
-                a distância aumenta.
-                */
-
-                const normalized =
+                const falloff =
                     1 -
                     distance / maxDistance;
 
 
-                interaction =
-                    force * normalized;
+                force =
+                    speciesForce *
+                    falloff;
 
             }
 
@@ -3181,42 +3162,39 @@ function drawConnections(){
 
             const fx =
                 nx *
-                interaction *
+                force *
                 PARTICLE_LIFE.strength;
 
 
             const fy =
                 ny *
-                interaction *
+                force *
                 PARTICLE_LIFE.strength;
 
 
             /*
-            A aplica a força em A.
+            Agora a força é dependente
+            do tempo, e não do FPS.
             */
 
             a.vx +=
-                fx /
-                a.mass;
+                (fx / a.mass) *
+                deltaTime;
 
 
             a.vy +=
-                fy /
-                a.mass;
+                (fy / a.mass) *
+                deltaTime;
 
-
-            /*
-            B recebe a força contrária.
-            */
 
             b.vx -=
-                fx /
-                b.mass;
+                (fx / b.mass) *
+                deltaTime;
 
 
             b.vy -=
-                fy /
-                b.mass;
+                (fy / b.mass) *
+                deltaTime;
 
         }
 
@@ -3224,6 +3202,75 @@ function drawConnections(){
 
   }
 
+function particlePointerInteraction(deltaTime){
+
+    if(!pointer.active)
+        return;
+
+
+    const radius = 180;
+
+
+    for(const p of particles){
+
+        let dx =
+            pointer.x - p.x;
+
+        let dy =
+            pointer.y - p.y;
+
+
+        /*
+        Distância.
+        */
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        if(
+            distance < radius &&
+            distance > 1
+        ){
+
+            const nx =
+                dx / distance;
+
+            const ny =
+                dy / distance;
+
+
+            /*
+            O toque atrai levemente.
+            */
+
+            const force =
+                (1 - distance / radius)
+                * 0.035;
+
+
+            p.vx +=
+                nx *
+                force *
+                deltaTime *
+                60;
+
+
+            p.vy +=
+                ny *
+                force *
+                deltaTime *
+                60;
+
+        }
+
+    }
+
+}
+  
 /* ===========================
 TOQUE / PONTEIRO
 =========================== */
@@ -3394,6 +3441,7 @@ function drawBackground(deltaTime){
     for(const particle of particles){
 
         particle.update(deltaTime);
+        particle.draw();
 
     }
 
@@ -3427,39 +3475,45 @@ let lastTime = performance.now();
 
 function animateSpace(currentTime){
 
-    /*
-    DeltaTime em segundos.
-    */
-
     let deltaTime =
-    (currentTime - lastTime) / 1000;
+        (currentTime - lastTime) / 1000;
 
 
     lastTime = currentTime;
 
 
     /*
-    Evita um salto gigante caso
-    o navegador fique alguns segundos
-    sem atualizar o canvas.
+    Evita saltos quando o navegador
+    fica alguns frames sem atualizar.
     */
 
     deltaTime =
-    Math.min(deltaTime,.033);
+        Math.min(deltaTime,0.033);
 
+
+    /*
+    Atualiza interação do ponteiro.
+    */
 
     updatePointer();
 
 
     /*
-    Física Particle Life
+    Física das partículas.
     */
 
     particleLife(deltaTime);
 
 
     /*
-    Desenha e atualiza o fundo.
+    Interação com toque/mouse.
+    */
+
+    particlePointerInteraction(deltaTime);
+
+
+    /*
+    Atualiza e desenha tudo.
     */
 
     drawBackground(deltaTime);
@@ -3469,8 +3523,9 @@ function animateSpace(currentTime){
         animateSpace
     );
 
-  }
-
+}
+animateSpace(performance.now());
+  
   /* ===========================
 MENU MOBILE
 =========================== */
