@@ -2298,7 +2298,68 @@ mais movimento é preservado.
 
 const DAMPING = 0.985;
 
+/* ===========================
+PARTICLE LIFE
+=========================== */
 
+const PARTICLE_LIFE = {
+
+    /*
+    Distância máxima na qual
+    as partículas conseguem interagir.
+    */
+
+    interactionRadius: 150,
+
+    /*
+    Distância de segurança.
+    Abaixo dela começa a repulsão.
+    */
+
+    repulsionRadius: 25,
+
+    /*
+    Força máxima das interações.
+    */
+
+    strength: 0.035,
+
+    /*
+    Pequeno amortecimento.
+    */
+
+    damping: 0.997,
+
+    /*
+    Velocidade máxima.
+    */
+
+    maxSpeed: 0.8
+
+};
+
+
+/*
+Matriz de interação.
+
+0 = Azul
+1 = Verde
+2 = Roxo
+
+positivo = atração
+negativo = repulsão
+*/
+
+const PARTICLE_FORCES = [
+
+    [ 0.35,  0.12, -0.20 ],
+
+    [-0.18,  0.30,  0.15 ],
+
+    [ 0.20, -0.15,  0.28 ]
+
+];
+  
 /* ===========================
 UTILITÁRIOS
 =========================== */
@@ -2998,6 +3059,170 @@ function drawConnections(){
 
 }
 
+  function particleLife(){
+
+    const maxDistance =
+        PARTICLE_LIFE.interactionRadius;
+
+    const repulsionDistance =
+        PARTICLE_LIFE.repulsionRadius;
+
+
+    for(let i = 0; i < particles.length; i++){
+
+        const a = particles[i];
+
+
+        for(let j = i + 1; j < particles.length; j++){
+
+            const b = particles[j];
+
+
+            let dx = b.x - a.x;
+            let dy = b.y - a.y;
+
+
+            /*
+            Distância considerando
+            a passagem pelas bordas.
+            */
+
+            if(dx > w / 2) dx -= w;
+            if(dx < -w / 2) dx += w;
+
+            if(dy > h / 2) dy -= h;
+            if(dy < -h / 2) dy += h;
+
+
+            const distanceSquared =
+                dx * dx +
+                dy * dy;
+
+
+            if(distanceSquared === 0){
+
+                continue;
+
+            }
+
+
+            const distance =
+                Math.sqrt(distanceSquared);
+
+
+            if(distance > maxDistance){
+
+                continue;
+
+            }
+
+
+            const nx = dx / distance;
+            const ny = dy / distance;
+
+
+            /*
+            Força definida pela espécie.
+
+            A força de A sobre B
+            usa a espécie de A como origem.
+            */
+
+            const force =
+                PARTICLE_FORCES[a.type][b.type];
+
+
+            let interaction;
+
+
+            /*
+            Muito próximas:
+            repulsão forte.
+
+            Isso impede que as partículas
+            ocupem o mesmo espaço.
+            */
+
+            if(distance < repulsionDistance){
+
+                const repulsion =
+                    1 -
+                    distance / repulsionDistance;
+
+
+                interaction =
+                    -repulsion * 1.5;
+
+            }
+
+            else{
+
+                /*
+                Região de atração/repulsão.
+
+                A força diminui conforme
+                a distância aumenta.
+                */
+
+                const normalized =
+                    1 -
+                    distance / maxDistance;
+
+
+                interaction =
+                    force * normalized;
+
+            }
+
+
+            /*
+            Converte a força em aceleração.
+            */
+
+            const fx =
+                nx *
+                interaction *
+                PARTICLE_LIFE.strength;
+
+
+            const fy =
+                ny *
+                interaction *
+                PARTICLE_LIFE.strength;
+
+
+            /*
+            A aplica a força em A.
+            */
+
+            a.vx +=
+                fx /
+                a.mass;
+
+
+            a.vy +=
+                fy /
+                a.mass;
+
+
+            /*
+            B recebe a força contrária.
+            */
+
+            b.vx -=
+                fx /
+                b.mass;
+
+
+            b.vy -=
+                fy /
+                b.mass;
+
+        }
+
+    }
+
+  }
 
 /* ===========================
 TOQUE / PONTEIRO
@@ -3226,6 +3451,17 @@ function animateSpace(currentTime){
     updatePointer();
 
 
+    /*
+    Física Particle Life
+    */
+
+    particleLife(deltaTime);
+
+
+    /*
+    Desenha e atualiza o fundo.
+    */
+
     drawBackground(deltaTime);
 
 
@@ -3233,12 +3469,7 @@ function animateSpace(currentTime){
         animateSpace
     );
 
-}
-
-
-requestAnimationFrame(
-    animateSpace
-);
+  }
 
   /* ===========================
 MENU MOBILE
